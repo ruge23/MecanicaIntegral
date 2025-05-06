@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "mi-app",
-    "slug": "mi-app",
+    "name": "MIT",
+    "slug": "MIT",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo-mecanica-integral.png",
     "scheme": "miapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

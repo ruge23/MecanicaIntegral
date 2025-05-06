@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   ScrollView,
-  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -39,212 +38,203 @@ const PreviewScreen: React.FC = () => {
       <tr>
         <td>${item.description}</td>
         <td>${item.units}</td>
-        <td>${item.price} $</td>
-        <td>${item.total} $</td>
+        <td>$ ${item.price}</td>
+        <td>$ ${item.total}</td>
       </tr>
     `).join('');
 
     return `
-    <html>
-  <head>
-    <style>
-      body { 
-        font-family: Arial; 
-        margin: 40px;
-        font-size: 14px;
-      }
-      h1 { 
-        color: #333;
-        font-size: 18px;
-        margin-bottom: 5px;
-      }
-      .header-container {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
+            <html>
+              <head>
+                <style>
+                  body { 
+                    font-family: Arial, sans-serif; 
+                    margin: 0;
+                    padding: 20px;
+                    color: #333;
+                    font-size: 14px;
+                    line-height: 1.4;
+                  }
+                  h1 {
+                    font-size: 18px;
+                    color: #222;
+                    text-align: center;
+                    margin: 10px 0;
+                    padding-bottom: 10px;
+                    border-bottom: 2px solid #444;
+                  }
+                  .header-container {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 20px;
+                  }
+                  .left-cards {
+                    width: 30%;
+                  }
+                  .right-info {
+                    width: 60%;
+                    // border-left: 1px solid #ddd;
+                    // padding-left: 15px;
+                  }
+                  .company-card, 
+                  .client-data,
+                  .truck-data {
+                    margin-bottom: 15px;
+                    padding: 10px;
+                    // background: #f9f9f9;
+                    // border-radius: 5px;
+                    // border: 1px solid #eee;
+                  }
+                  .invoice-info-card {
+                    margin-bottom: 15px;
+                    padding: 10px;
+                    // background: #f9f9f9;
+                    // border-radius: 5px;
+                    // border: 1px solid #eee;
+                    display: flex;
+                    align-items: center;
+                  }
+                  .card-content {
+                    display: flex;
+                    align-items: center;
+                    width: 100%;
+                  }
+                  .card-logo {
+                    width: 50px; /* Ajusta según necesites */
+                    height: auto;
+                    margin-right: 15px;
+                  }
+                  .invoice-info-card h1 {
+                    background-color: #444;
+                    color: white;
+                    text-align: center;
+                    flex-grow: 1; /* Esto hace que el h1 ocupe el espacio restante */
+                    margin: 0; /* Elimina márgenes por defecto */
+                  }
+                  .client-data,
+                  .truck-data {
+                    margin-bottom: 10px;
+                  }
+                  .bold {
+                    font-weight: bold;
+                  }
+                  table { 
+                    width: 100%; 
+                    border-collapse: collapse; 
+                    margin: 15px 0;
+                  }
+                  th, td { 
+                    border: 1px solid #ddd; 
+                    padding: 8px; 
+                    text-align: left;
+                    font-weight: normal;
+                  }
+                  .info-table {
+                    width: 100%;
+                    margin-left: 0;
+                  }
+                  .info-table th {
+                    background-color: #444;
+                    color: white;
+                    font-weight: bold;
+                  }
+                  .info-table td {
+                    border: none;
+                    padding: 3px 15px 3px 0;
+                  }
+                  .items-table th {
+                    background-color: #444;
+                    color: white;
+                    font-weight: bold;
+                  }
+                  .items-table td {
+                    font-style: italic;
+                  }
+                  .totals {
+                    padding: 10px: 
+                    margin-top: 20px;
+                    text-align: right;
+                    border: 1px solid #ddd;
+                  }
+                  .totals p {
+                    margin: 5px;
+                  }
+                  .signature { 
+                    margin-top: 60px;
+                  }
+                  .signature p {
+                    margin: 25px 0 0 0;
+                  }
+                  .divider {
+                    border-top: 1px solid #000;
+                    margin: 10px 0;
+                  }
+                  .bold {
+                    font-weight: bold;
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="invoice-info-card">
+                  <div class="card-content">
+                    <h1>Presupuesto - ${invoiceData.invoiceNumber || '000000000001'}</h1>
+                  </div>
+                </div>
+                <div class="header-container">
+                  <div class="left-cards">
+                    <div class="company-card">
+                      <p class="bold">${invoiceData.companyName}</p>
+                      <p>Dirección: ${invoiceData.companyAddress}</p>
+                      <p>Cuit: ${invoiceData.companyNIF}</p>
+                      <p>Tel: ${invoiceData.companyPhone} </p>
+                      <p>Email: ${invoiceData.companyEmail}</p>
+                    </div>
+                  </div>
+                  <div class="right-info">
+                    <div class="client-data">
+                      <p class="bold">Datos del Cliente: </p>
+                      <p>Nombre: ${invoiceData.clientName || 'Nombre del cliente'}</p>
+                      <p>Telefono: ${invoiceData.Teléfono || 'Telefono del cliente'}</p>
+                      <p>Email: ${invoiceData.Email || 'Email del cliente'}</p>
+                      <p class="bold">Datos del Camión: </p>
+                      <p>Marca: ${invoiceData.Marca || 'Marca del camión'}</p>
+                      <p>Modelo: ${invoiceData.Modelo || 'Modelo'}</p>
+                      <p>Patente: ${invoiceData.Patente || 'Patente'}</p>
+                      <p>N°chasis: ${invoiceData.Ndemotorchasis || 'N°chasis'}</p>
+                    </div>
+                  </div>
+                </div>
+                <table class="info-table">
+                  <tr>
+                    <th>Fecha de Ingreso</th>
+                    <th>${invoiceData.date}</th>
+                  </tr>
+                </table>
+                <table class="items-table">
+                  <tr>
+                    <th>DESCRIPCIÓN</th>
+                    <th>UNIDADES</th>
+                    <th>PRECIO</th>
+                    <th>TOTAL</th>
+                  </tr>
+                  ${itemsHTML}
+                </table>
 
-.left-cards {
-  width: 60%;
-}
+                <div class="divider"></div>
 
-.right-info {
-  width: 35%;
-  border-left: 1px solid #ddd;
-  padding-left: 15px;
-}
+                <div class="totals">
+                  <p>SUB-TOTAL: $ ${subtotal} </p>
+                  <p>DESCUENTO: $ ${discount} </p>
+                  <p>IVA (${taxRate}%): $ ${(total - subtotal + discount)} </p>
+                  <p>TOTAL PRESUPUESTADO: $ ${total} </p>
+                </div>
 
-.company-card, 
-.client-data,
-.truck-data {
-  margin-bottom: 15px;
-  padding: 10px;
-  background: #f9f9f9;
-  border-radius: 5px;
-  border: 1px solid #eee;
-}
-.invoice-info-card {
-  margin-bottom: 15px;
-  padding: 10px;
-  background: #f9f9f9;
-  border-radius: 5px;
-  border: 1px solid #eee;
-  display: flex;
-  align-items: center;
-}
-
-.card-content {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.card-logo {
-  width: 50px; /* Ajusta según necesites */
-  height: auto;
-  margin-right: 15px;
-}
-
-.invoice-info-card h1 {
-  text-align: center;
-  flex-grow: 1; /* Esto hace que el h1 ocupe el espacio restante */
-  margin: 0; /* Elimina márgenes por defecto */
-}
-.client-data,
-.truck-data {
-  margin-bottom: 10px;
-}
-
-.bold {
-  font-weight: bold;
-}
-
-.info-table {
-  width: auto;
-  margin-left: 0;
-}
-
-.info-table td {
-  border: none;
-  padding: 3px 15px 3px 0;
-}
-      table { 
-        width: 100%; 
-        border-collapse: collapse; 
-        margin: 15px 0;
-      }
-      th, td { 
-        border: 1px solid #ddd; 
-        padding: 8px; 
-        text-align: left;
-        font-weight: normal;
-      }
-      .info-table {
-        width: auto;
-        margin-left: 0;
-      }
-      .info-table td {
-        border: none;
-        padding: 3px 15px 3px 0;
-      }
-      .items-table th {
-        background-color: #f2f2f2;
-        font-weight: bold;
-      }
-      .items-table td {
-        font-style: italic;
-      }
-      .totals { 
-        margin-top: 20px;
-        text-align: right;
-      }
-      .totals p {
-        margin: 5px 0;
-      }
-      .signature { 
-        margin-top: 60px;
-      }
-      .signature p {
-        margin: 25px 0 0 0;
-      }
-      .divider {
-        border-top: 1px solid #000;
-        margin: 10px 0;
-      }
-      .bold {
-        font-weight: bold;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="invoice-info-card">
-      <div class="card-content">
-        <img src="assets/images/logo-mecanica-integral.jpeg" alt="Logo" class="card-logo">
-        <h1>Presupuesto #${invoiceData.invoiceNumber || '0001'}</h1>
-      </div>
-    </div>
-
-  <div class="header-container">
-    <div class="left-cards">
-      <div class="company-card">
-        <p class="bold">${invoiceData.companyName}</p>
-        <p>${invoiceData.companyAddress}</p>
-        <p>NIF: ${invoiceData.companyNIF}</p>
-        <p>Tel: ${invoiceData.companyPhone} | Email: ${invoiceData.companyEmail}</p>
-      </div>
-    </div>
-  
-  <div class="right-info">
-    <div class="client-data">
-      <p class="bold">${invoiceData.clientName || 'Nombre del cliente'}</p>
-      <p>${'Dirección del cliente'}</p>
-      <p>NIF: ${'NIF del cliente'}</p>
-      <p>Tel: ${'Teléfono del cliente'}</p>
-      <p>Matrícula: ${'Matrícula'}</p>
-      <p>Conductor: ${'Nombre conductor'}</p>
-      <p>DNI: ${'DNI conductor'}</p>
-    </div>
-  </div>
-</div>
-
-    
-    
-    <table class="info-table">
-      <tr>
-        <table>
-          <tr>
-            <th>Fecha de Ingreso</th>
-            <th>${invoiceData.date}</th>
-          </tr>
-        </table>
-      </tr>
-    </table>
-    
-    <table class="items-table">
-      <tr>
-        <th>DESCRIPCIÓN</th>
-        <th>UNIDADES</th>
-        <th>PRECIO</th>
-        <th>TOTAL</th>
-      </tr>
-      ${itemsHTML}
-    </table>
-    
-    <div class="divider"></div>
-    
-    <div class="totals">
-      <p>SUB-TOTAL: ${subtotal} $</p>
-      <p>DESCUENTO: ${discount} $</p>
-      <p>IVA (${taxRate}%): ${(total - subtotal + discount)} $</p>
-      <p>TOTAL PRESUPUESTADO: ${total} $</p>
-    </div>
-    
-    <div class="signature">
-      <p>Firma</p>
-      <p>Firma del cliente</p>
-    </div>
-  </body>
-</html>
+                <div class="signature">
+                  <p>Firma</p>
+                  <p>Firma del cliente</p>
+                </div>
+              </body>
+            </html>
     `;
   };
 
@@ -261,27 +251,11 @@ const PreviewScreen: React.FC = () => {
     }
   };
 
-  const shareInvoice = async () => {
-    try {
-      const message = `Presupuesto #${invoiceData.invoiceNumber || '0001'}\n` +
-        `Cliente: ${invoiceData.clientName}\n` +
-        `Total: ${total} $\n` +
-        `Validez: ${invoiceData.validityDays} días`;
-
-      return await Share.share({
-        message,
-        title: 'Presupuesto Mecánica Integral'
-      });
-    } catch (error) {
-      console.error('Error al compartir:', error);
-    }
-  };
-
   return (
     <LinearGradient colors={['#000000', '#1a1a1a']} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.invoiceContainer}>
-          <Text style={styles.invoiceTitle}>Presupuesto #{invoiceData.invoiceNumber || '0001'}</Text>
+          <Text style={styles.invoiceTitle}>Presupuesto #{invoiceData.invoiceNumber || '000000000001'}</Text>
 
           <View style={styles.header}>
             <Text style={styles.companyName}>{invoiceData.companyName}</Text>
@@ -314,10 +288,10 @@ const PreviewScreen: React.FC = () => {
           </View>
 
           <View style={styles.totalsContainer}>
-            <Text style={styles.totalText}>SUB-TOTAL: {subtotal} $</Text>
-            <Text style={styles.totalText}>DESCUENTO: {discount} $</Text>
-            <Text style={styles.totalText}>IVA ({taxRate}%): {(total - subtotal + discount)} $</Text>
-            <Text style={styles.grandTotal}>TOTAL PRESUPUESTADO: {total} $</Text>
+            <Text style={styles.totalText}>Sub-total: $ {subtotal}</Text>
+            <Text style={styles.totalText}>Descuento: $ {discount}</Text>
+            <Text style={styles.totalText}>IVA ({taxRate}%): $ {(total - subtotal + discount)} </Text>
+            <Text style={styles.grandTotal}>Total Presupuestado: $ {total}</Text>
           </View>
 
           <View style={styles.signatureContainer}>
@@ -414,12 +388,14 @@ const styles = StyleSheet.create({
   tableHeader: {
     fontWeight: 'bold',
     backgroundColor: '#333',
+    fontSize: 15,
   },
   tableCell: {
     flex: 1,
     padding: 8,
     color: '#fff',
     textAlign: 'center',
+    fontSize: 11,
   },
   totalsContainer: {
     marginTop: 20,
