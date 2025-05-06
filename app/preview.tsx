@@ -189,20 +189,20 @@ const PreviewScreen: React.FC = () => {
           <TouchableOpacity
             style={styles.actionButton}
             onPress={generatePDF}
-            accessibilityLabel="Exportar factura como PDF"
+            accessibilityLabel="Compartir factura como PDF"
           >
-            <MaterialIcons name="picture-as-pdf" size={24} color="#fff" />
+            <MaterialIcons name="share" size={24} color="#fff" />
             <Text style={styles.actionButtonText}>Exportar PDF</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.actionButton}
             onPress={shareInvoice}
             accessibilityLabel="Compartir factura"
           >
             <MaterialIcons name="share" size={24} color="#fff" />
             <Text style={styles.actionButtonText}>Compartir</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: '#FF4C4C' }]}

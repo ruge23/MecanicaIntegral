@@ -58,9 +58,12 @@ const FormScreen = () => {
     if (name === 'Item') {
       setSelectedItem(value as string);
     }
+    console.log('description', index, name, value);
     
     const newItems = [...formData.items];
     newItems[index] = { ...newItems[index], [name]: value };
+    
+    console.log('newItems', newItems);
 
     if (name === 'units' || name === 'price') {
       newItems[index].total =
@@ -220,7 +223,7 @@ const FormScreen = () => {
                     <Picker
                       selectedValue={item.Descripción}
                       style={styles.picker}
-                      onValueChange={(itemValue) => handleItemChange(index, 'Descripción', itemValue)}
+                      onValueChange={(itemValue) => handleItemChange(index, 'description', itemValue)}
                       mode='dropdown'
                     >
                       <Picker.Item label="Descripcion reparación" value="" />
