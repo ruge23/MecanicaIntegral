@@ -94,7 +94,7 @@ const FormScreen = () => {
     const { subtotal, totalWithTax } = calculateTotals();
     const invoiceData = { ...formData, subtotal, total: totalWithTax };
     dispatch(saveInvoiceData(invoiceData));
-    // navigation.navigate('Preview');
+    navigation.navigate('preview');
   };
 
   const onDateChange = (event: any, selectedDate?: Date) => {
