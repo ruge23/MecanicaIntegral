@@ -23,7 +23,6 @@ export type FormData = {
     price: number;
     total: number;
     Item?: string;
-    Descripción?: string;
   }>;
   subtotal: number;
   discount: number;

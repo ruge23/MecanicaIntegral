@@ -1,29 +1,27 @@
 import React from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
   ScrollView,
-  TouchableOpacity,
   Share,
-  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { useSelector } from 'react-redux';
 // import { RootState } from '../redux/store';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList, InvoiceData } from '../types';
-import { MaterialIcons } from '@expo/vector-icons';
+import { InvoiceData, RootStackParamList } from '../types';
 
 type PreviewScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'preview'>;
 
 const PreviewScreen: React.FC = () => {
   const invoiceData = useSelector((state: any) => state.invoice.invoiceData) as InvoiceData | null;
-  const navigation = useNavigation<PreviewScreenNavigationProp>();
-  console.log('state.invoice.invoiceData', invoiceData);
+  const navigation = useNavigation<PreviewScreenNavigationProp>(); 
 
   if (!invoiceData) {
     return (
@@ -47,61 +45,206 @@ const PreviewScreen: React.FC = () => {
     `).join('');
 
     return `
-      <html>
-        <head>
-          <style>
-            body { font-family: Arial; margin: 20px; }
-            h1 { color: #333; }
-            .header { margin-bottom: 20px; }
-            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-            .totals { margin-top: 20px; font-weight: bold; }
-            .signature { margin-top: 50px; }
-          </style>
-        </head>
-        <body>
-          <h1>Presupuesto #${invoiceData.invoiceNumber || '0001'}</h1>
-          
-          <div class="header">
-            <p><strong>${invoiceData.companyName}</strong></p>
-            <p>${invoiceData.companyAddress}</p>
-            <p>NIF: ${invoiceData.companyNIF}</p>
-            <p>Tel: ${invoiceData.companyPhone} | Email: ${invoiceData.companyEmail}</p>
-          </div>
-          
-          <table>
-            <tr>
-              <th>Fecha</th>
-              <th>${invoiceData.date}</th>
-              <th>Validez</th>
-              <th>${invoiceData.validityDays} días</th>
-            </tr>
-          </table>
-          
-          <table>
-            <tr>
-              <th>DESCRIPCIÓN</th>
-              <th>UNIDADES</th>
-              <th>PRECIO</th>
-              <th>TOTAL</th>
-            </tr>
-            ${itemsHTML}
-          </table>
-          
-          <div class="totals">
-            <p>SUB-TOTAL: ${subtotal} $</p>
-            <p>DESCUENTO: ${discount} $</p>
-            <p>IVA (${taxRate}%): ${(total - subtotal + discount)} $</p>
-            <p>TOTAL PRESUPUESTADO: ${total} $</p>
-          </div>
-          
-          <div class="signature">
-            <p>Firma: _________________________</p>
-            <p>Firma del cliente: _________________________</p>
-          </div>
-        </body>
-      </html>
+    <html>
+  <head>
+    <style>
+      body { 
+        font-family: Arial; 
+        margin: 40px;
+        font-size: 14px;
+      }
+      h1 { 
+        color: #333;
+        font-size: 18px;
+        margin-bottom: 5px;
+      }
+      .header-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.left-cards {
+  width: 60%;
+}
+
+.right-info {
+  width: 35%;
+  border-left: 1px solid #ddd;
+  padding-left: 15px;
+}
+
+.company-card, 
+.client-data,
+.truck-data {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 5px;
+  border: 1px solid #eee;
+}
+.invoice-info-card {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 5px;
+  border: 1px solid #eee;
+  display: flex;
+  align-items: center;
+}
+
+.card-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.card-logo {
+  width: 50px; /* Ajusta según necesites */
+  height: auto;
+  margin-right: 15px;
+}
+
+.invoice-info-card h1 {
+  text-align: center;
+  flex-grow: 1; /* Esto hace que el h1 ocupe el espacio restante */
+  margin: 0; /* Elimina márgenes por defecto */
+}
+.client-data,
+.truck-data {
+  margin-bottom: 10px;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.info-table {
+  width: auto;
+  margin-left: 0;
+}
+
+.info-table td {
+  border: none;
+  padding: 3px 15px 3px 0;
+}
+      table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin: 15px 0;
+      }
+      th, td { 
+        border: 1px solid #ddd; 
+        padding: 8px; 
+        text-align: left;
+        font-weight: normal;
+      }
+      .info-table {
+        width: auto;
+        margin-left: 0;
+      }
+      .info-table td {
+        border: none;
+        padding: 3px 15px 3px 0;
+      }
+      .items-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+      }
+      .items-table td {
+        font-style: italic;
+      }
+      .totals { 
+        margin-top: 20px;
+        text-align: right;
+      }
+      .totals p {
+        margin: 5px 0;
+      }
+      .signature { 
+        margin-top: 60px;
+      }
+      .signature p {
+        margin: 25px 0 0 0;
+      }
+      .divider {
+        border-top: 1px solid #000;
+        margin: 10px 0;
+      }
+      .bold {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="invoice-info-card">
+      <div class="card-content">
+        <img src="assets/images/logo-mecanica-integral.jpeg" alt="Logo" class="card-logo">
+        <h1>Presupuesto #${invoiceData.invoiceNumber || '0001'}</h1>
+      </div>
+    </div>
+
+  <div class="header-container">
+    <div class="left-cards">
+      <div class="company-card">
+        <p class="bold">${invoiceData.companyName}</p>
+        <p>${invoiceData.companyAddress}</p>
+        <p>NIF: ${invoiceData.companyNIF}</p>
+        <p>Tel: ${invoiceData.companyPhone} | Email: ${invoiceData.companyEmail}</p>
+      </div>
+    </div>
+  
+  <div class="right-info">
+    <div class="client-data">
+      <p class="bold">${invoiceData.clientName || 'Nombre del cliente'}</p>
+      <p>${'Dirección del cliente'}</p>
+      <p>NIF: ${'NIF del cliente'}</p>
+      <p>Tel: ${'Teléfono del cliente'}</p>
+      <p>Matrícula: ${'Matrícula'}</p>
+      <p>Conductor: ${'Nombre conductor'}</p>
+      <p>DNI: ${'DNI conductor'}</p>
+    </div>
+  </div>
+</div>
+
+    
+    
+    <table class="info-table">
+      <tr>
+        <table>
+          <tr>
+            <th>Fecha de Ingreso</th>
+            <th>${invoiceData.date}</th>
+          </tr>
+        </table>
+      </tr>
+    </table>
+    
+    <table class="items-table">
+      <tr>
+        <th>DESCRIPCIÓN</th>
+        <th>UNIDADES</th>
+        <th>PRECIO</th>
+        <th>TOTAL</th>
+      </tr>
+      ${itemsHTML}
+    </table>
+    
+    <div class="divider"></div>
+    
+    <div class="totals">
+      <p>SUB-TOTAL: ${subtotal} $</p>
+      <p>DESCUENTO: ${discount} $</p>
+      <p>IVA (${taxRate}%): ${(total - subtotal + discount)} $</p>
+      <p>TOTAL PRESUPUESTADO: ${total} $</p>
+    </div>
+    
+    <div class="signature">
+      <p>Firma</p>
+      <p>Firma del cliente</p>
+    </div>
+  </body>
+</html>
     `;
   };
 
@@ -148,10 +291,8 @@ const PreviewScreen: React.FC = () => {
           </View>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Fecha:</Text>
+            <Text style={styles.infoLabel}>Fecha de Ingreso:</Text>
             <Text style={styles.infoValue}>{invoiceData.date}</Text>
-            <Text style={styles.infoLabel}>Validez:</Text>
-            <Text style={styles.infoValue}>{invoiceData.validityDays} días</Text>
           </View>
 
           <View style={styles.table}>
@@ -192,17 +333,8 @@ const PreviewScreen: React.FC = () => {
             accessibilityLabel="Compartir factura como PDF"
           >
             <MaterialIcons name="share" size={24} color="#fff" />
-            <Text style={styles.actionButtonText}>Exportar PDF</Text>
+            <Text style={styles.actionButtonText}>Compartir PDF</Text>
           </TouchableOpacity>
-
-          {/* <TouchableOpacity
-            style={styles.actionButton}
-            onPress={shareInvoice}
-            accessibilityLabel="Compartir factura"
-          >
-            <MaterialIcons name="share" size={24} color="#fff" />
-            <Text style={styles.actionButtonText}>Compartir</Text>
-          </TouchableOpacity> */}
 
           <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: '#FF4C4C' }]}

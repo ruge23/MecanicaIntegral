@@ -221,7 +221,7 @@ const FormScreen = () => {
                 {selectedItem && selectedItem in DATA_ITEMS && ( 
                   <View style={styles.pickerContainer}>
                     <Picker
-                      selectedValue={item.Descripción}
+                      selectedValue={item.description}
                       style={styles.picker}
                       onValueChange={(itemValue) => handleItemChange(index, 'description', itemValue)}
                       mode='dropdown'
