@@ -180,6 +180,7 @@ const PreviewScreen: React.FC = () => {
                     <h1>Presupuesto - ${invoiceData.invoiceNumber || '000000000001'}</h1>
                   </div>
                 </div>
+                <div class="divider"></div>
                 <div class="header-container">
                   <div class="left-cards">
                     <div class="company-card">
@@ -210,6 +211,7 @@ const PreviewScreen: React.FC = () => {
                     <th>${invoiceData.date}</th>
                   </tr>
                 </table>
+                
                 <table class="items-table">
                   <tr>
                     <th>DESCRIPCIÓN</th>
@@ -221,6 +223,7 @@ const PreviewScreen: React.FC = () => {
                 </table>
 
                 <div class="divider"></div>
+                
 
                 <div class="totals">
                   <p>SUB-TOTAL: $ ${subtotal} </p>
@@ -259,9 +262,11 @@ const PreviewScreen: React.FC = () => {
 
           <View style={styles.header}>
             <Text style={styles.companyName}>{invoiceData.companyName}</Text>
-            <Text style={styles.companyInfo}>{invoiceData.companyAddress}</Text>
-            <Text style={styles.companyInfo}>NIF: {invoiceData.companyNIF}</Text>
-            <Text style={styles.companyInfo}>Tel: {invoiceData.companyPhone} | Email: {invoiceData.companyEmail}</Text>
+            <Text style={styles.companyInfo}>Dirección: {invoiceData.companyAddress}</Text>
+            <Text style={styles.companyInfo}>Cuil: {invoiceData.companyNIF}</Text>
+            <Text style={styles.companyInfo}>Tel: {invoiceData.companyPhone} </Text>
+            <Text style={styles.companyInfo}>Email: {invoiceData.companyEmail} </Text>
+
           </View>
 
           <View style={styles.infoRow}>
@@ -271,18 +276,18 @@ const PreviewScreen: React.FC = () => {
 
           <View style={styles.table}>
             <View style={styles.tableRow}>
-              <Text style={[styles.tableHeader, styles.tableCell]}>DESCRIPCIÓN</Text>
-              <Text style={[styles.tableHeader, styles.tableCell]}>UNIDADES</Text>
-              <Text style={[styles.tableHeader, styles.tableCell]}>PRECIO</Text>
-              <Text style={[styles.tableHeader, styles.tableCell]}>TOTAL</Text>
+              <Text style={[styles.tableHeader, styles.tableCell]}>Descripción</Text>
+              <Text style={[styles.tableHeader, styles.tableCell]}>Unidades</Text>
+              <Text style={[styles.tableHeader, styles.tableCell]}>Precio</Text>
+              <Text style={[styles.tableHeader, styles.tableCell]}>Total</Text>
             </View>
 
             {items.map((item, index) => (
               <View key={`item-${index}`} style={styles.tableRow}>
                 <Text style={styles.tableCell}>{item.description}</Text>
                 <Text style={styles.tableCell}>{item.units}</Text>
-                <Text style={styles.tableCell}>{item.price} $</Text>
-                <Text style={styles.tableCell}>{item.total} $</Text>
+                <Text style={styles.tableCell}>$ {item.price} </Text>
+                <Text style={styles.tableCell}>$ {item.total} </Text>
               </View>
             ))}
           </View>
