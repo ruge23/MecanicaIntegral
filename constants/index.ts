@@ -141,7 +141,7 @@ export const DATA_ITEMS: DataItemsType = {
       '16-75 Diagrama elétrico',
       '16-95 Localizac averias y sintomas',
       '16-96 Conversión',
-      '16-97 Mazo cables, electrón potemcia'
+      '16-97 Mazo cables, electrón potencia'
     ]
 }
   
