@@ -196,7 +196,11 @@ const FormScreen = () => {
                 <DateTimePicker
                   value={new Date(formData.engineOrChassisNumberDate || new Date())}
                   mode="date"
-                  display="default"
+                  display="spinner"
+                  textColor="red"
+                  locale="es-ES"
+                  positiveButton={{label: 'OK', textColor: 'red'}}
+                  negativeButton={{label: 'Cancel', textColor: 'red'}}
                   onChange={onDateChange}
                 />
               )}

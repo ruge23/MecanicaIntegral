@@ -1,23 +1,23 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
+  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-  Image,
-  SafeAreaView
+  View
 } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types';
 import { login, loginFailure } from '../redux/slices/loginSlice';
-import { LinearGradient } from 'expo-linear-gradient';
+import { RootStackParamList } from '../types';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'login'>;
 
@@ -26,26 +26,42 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [usernameError, setUsernameError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const navigation = useNavigation<LoginScreenNavigationProp>();
 
   const handleLogin = () => {
+    setUsernameError('');
+    setPasswordError('');
+    let isValid = true;
+
     if (!username.trim()) {
       setUsernameError('Por favor ingresa tu nombre de usuario');
-      return;
-    } else {
-      setUsernameError('');
+      isValid = false;
     }
+    if (!password) {
+      setPasswordError('Por favor ingresa tu contraseña');
+      isValid = false;
+    }
+    if (!isValid) return;
 
     setIsLoading(true);
     
     setTimeout(() => {
-      if (username && password) {
-        dispatch(login({ username }));
-        navigation.navigate('home');
+      const normalizedUsername = username.toLowerCase().trim();
+      console.log('Intento de login con:', { normalizedUsername, password }); // Debug
+
+      if (normalizedUsername === 'santiago' && password === '159753') {
+        dispatch(login({ username: normalizedUsername }));
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'home' }],
+        });
       } else {
         dispatch(loginFailure({error: 'Credenciales incorrectas'}));
+        setUsernameError('Credenciales incorrectas');
+        setPasswordError('Credenciales incorrectas');
       }
       setIsLoading(false);
     }, 1500);
@@ -100,7 +116,10 @@ const LoginScreen = () => {
                   placeholderTextColor="#888"
                   secureTextEntry={!showPassword}
                   value={password}
-                  onChangeText={setPassword}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    setPasswordError('');
+                  }}
                 />
                 <TouchableOpacity
                   style={styles.toggleButton}
@@ -113,7 +132,9 @@ const LoginScreen = () => {
                   />
                 </TouchableOpacity>
               </View>
-            
+              {passwordError && (
+                <Text style={styles.errorText}>{passwordError}</Text>
+              )}
               <TouchableOpacity 
                 style={[
                   styles.button,
@@ -196,7 +217,7 @@ const styles = StyleSheet.create({
   },
   passwordContainer: {
     position: 'relative',
-    marginBottom: 25,
+    marginBottom: 5,
   },
   input: {
     backgroundColor: '#222',
