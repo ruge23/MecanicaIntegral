@@ -5,14 +5,14 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import {
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { BRAND_TRUCK, DATA_ITEMS } from '../constants';
@@ -24,7 +24,7 @@ const FormScreen = () => {
       clientName: '',
       date: new Date().toISOString().split('T')[0],
       invoiceNumber: '',
-      companyName: 'Mecanica Integral Tucuman',
+      companyName: 'Mecanica Integral Tucumán',
       companyAddress: 'Los Aguirres',
       companyNIF: '20-35789965-5',
       companyPhone: '3584014717',

@@ -1,7 +1,12 @@
 import { DataItemsType } from "@/types";
 
 export const DATA_ITEMS: DataItemsType = {
-    '01 Motor': [
+  '00 General': [
+      '00-00 Varios',
+      '00-01 Auxilio'
+  ],
+  
+  '01 Motor': [
       '01-00 Motor, conjunto',
       '01-01 Culata',
       '01-05 Bloque motor',
@@ -31,7 +36,7 @@ export const DATA_ITEMS: DataItemsType = {
       '02-40 Calefactor aux, circuito refrg',
       '02-96 Conversión'
     ],
-    '03 Sistema eléctrico': [
+    '03 Sistema combustible y escape': [
       '03-00 Sist combustib y escape, conj',
       '03-01 Bomba inyección e inyectores',
       '03-05 Unidad filtrado combustible',
@@ -42,7 +47,7 @@ export const DATA_ITEMS: DataItemsType = {
       '03-40 Panel de gas',
       '03-95 Localizac averias y síntomas',
       '03-96 Conversión',
-      '03-98 Sistema contral electrónico'
+      '03-98 Sistema control electrónico'
     ],
     '04 Embrague': [
       '04-00 Embrague, conjunto'
@@ -53,11 +58,11 @@ export const DATA_ITEMS: DataItemsType = {
       '05-00 Caja de cambios, conjunto',
       '05-01 Cárter de la caja de cambios',
       '05-10 Ejes y engranajes',
-      '05-12 Máquiana elétrica',
+      '05-12 Máquina elétrica',
       '05-15 Engranaje planetario',
       '05-20 Mecanismo del cambio',
       '05-25 Suspensión de caja de cambios',
-      '05-30 Sistema de refrigueración',
+      '05-30 Sistema de refrigeración',
       '05-35 Toma de fuerza',
       '05-35 Ralentizador integrado',
       '05-52 Ralentizador',
@@ -90,7 +95,7 @@ export const DATA_ITEMS: DataItemsType = {
     ],
     '10 Frenos': [
       '10-00 Sistema de frenos, conjunto',
-      '10-01 freno de rueda',
+      '10-01 Freno de rueda',
       '10-05 Cilindro de freno',
       '10-15 Compresor',
       '10-25 Circuito de alimentación',
@@ -98,7 +103,7 @@ export const DATA_ITEMS: DataItemsType = {
       '10-35 Circuito de freno de servicio',
       '10-40 Circuito frenos del remolque',
       '10-45 Freno de escape',
-      '10-75 diagrama neumatico',
+      '10-75 Diagrama neumatico',
       '10-98 Sistema control electrónico'
     ],
     '12 Suspensión': [
@@ -136,7 +141,7 @@ export const DATA_ITEMS: DataItemsType = {
       '16-75 Diagrama elétrico',
       '16-95 Localizac averias y sintomas',
       '16-96 Conversión',
-      '16-97 Mazo cables, electrón potemcia'
+      '16-97 Mazo cables, electrón potencia'
     ]
 }
   
