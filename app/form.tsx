@@ -41,15 +41,7 @@ const FormScreen = () => {
     const [selectedItem, setSelectedItem] = useState<string | null>(null);
     const dispatch = useDispatch();
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  
-    // Ocultar header
-    React.useLayoutEffect(() => {
-      navigation.setOptions({
-        headerShown: false,
-        gestureEnabled: false
-      });
-    }, [navigation]);
-  
+
     const handleChange = <T extends keyof FormData>(name: T, value: FormData[T]) => {
       setFormData({ ...formData, [name]: value });
     };
@@ -109,6 +101,14 @@ const FormScreen = () => {
         });
       }
     };
+
+    // Ocultar header
+    React.useLayoutEffect(() => {
+      navigation.setOptions({
+        headerShown: false,
+        gestureEnabled: false
+      });
+    }, [navigation]);
   
     return (
       <SafeAreaView style={styles.safeArea}>

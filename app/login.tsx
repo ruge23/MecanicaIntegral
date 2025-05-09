@@ -18,6 +18,7 @@ import {
 import { useDispatch } from 'react-redux';
 import { login, loginFailure } from '../redux/slices/loginSlice';
 import { RootStackParamList } from '../types';
+// import { testFirebaseConnection } from '../testFirebase'; 
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'login'>;
 
@@ -66,6 +67,10 @@ const LoginScreen = () => {
       setIsLoading(false);
     }, 1500);
   };
+
+  // useEffect(() => {
+    // testFirebaseConnection();
+  // }, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
