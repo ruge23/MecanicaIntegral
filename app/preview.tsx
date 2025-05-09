@@ -15,12 +15,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { InvoiceData, RootStackParamList } from '../types';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/firebase/firebaseConfig';
 
 type PreviewScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'preview'>;
 
 const PreviewScreen: React.FC = () => {
   const invoiceData = useSelector((state: any) => state.invoice.invoiceData) as InvoiceData | null;
   const navigation = useNavigation<PreviewScreenNavigationProp>(); 
+  const newIdPresupuesto = useSelector((state: any) => state.invoice.idPresupuesto);
 
   if (!invoiceData) {
     return (
@@ -177,7 +180,7 @@ const PreviewScreen: React.FC = () => {
               <body>
                 <div class="invoice-info-card">
                   <div class="card-content">
-                    <h1>Presupuesto - ${invoiceData.invoiceNumber || '000000000001'}</h1>
+                    <h1>Presupuesto - ${newIdPresupuesto}</h1>
                   </div>
                 </div>
                 <div class="header-container">
@@ -238,6 +241,26 @@ const PreviewScreen: React.FC = () => {
     `;
   };
 
+  const guardarNuevaFacturaDB = async () => {
+    try {
+      const nuevaFactura = {
+        idPresupuesto: newIdPresupuesto,
+        numPatente: invoiceData.Patente,
+        userId: invoiceData.clientName,
+        fechaCreacion: serverTimestamp(),
+        items, 
+        total,
+        estado: 'activa'
+      };
+      const docRef = await addDoc(collection(db, 'facturas'), nuevaFactura);
+      return { ...nuevaFactura, firebaseId: docRef.id };
+    
+    } catch (error) {
+      console.error("Error al crear factura:", error);
+      throw error;
+    }
+  }
+
   const generatePDF = async (): Promise<void> => {
     try {
       const html = generateInvoiceHTML();
@@ -245,6 +268,8 @@ const PreviewScreen: React.FC = () => {
 
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri);
+        await guardarNuevaFacturaDB();
+        navigation.navigate('home');
       }
     } catch (error) {
       console.error('Error al generar PDF:', error);
@@ -255,7 +280,7 @@ const PreviewScreen: React.FC = () => {
     <LinearGradient colors={['#000000', '#1a1a1a']} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.invoiceContainer}>
-          <Text style={styles.invoiceTitle}>Presupuesto #{invoiceData.invoiceNumber || '000000000001'}</Text>
+          <Text style={styles.invoiceTitle}>Presupuesto #{newIdPresupuesto}</Text>
 
           <View style={styles.header}>
             <Text style={styles.companyName}>{invoiceData.companyName}</Text>

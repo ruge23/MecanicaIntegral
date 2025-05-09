@@ -3,10 +3,12 @@ import { FormData } from '../../types';
 
 interface InvoiceState {
   invoiceData: FormData | null;
+  idPresupuesto: string;
 }
 
 const initialState: InvoiceState = {
   invoiceData: null,
+  idPresupuesto: ''
 };
 
 const invoiceSlice = createSlice({
@@ -19,8 +21,11 @@ const invoiceSlice = createSlice({
     clearInvoiceData: (state) => {
       state.invoiceData = null;
     },
+    setIdPresupuesto: (state, action) => {
+      state.idPresupuesto = action.payload;
+    }
   },
 });
 
-export const { saveInvoiceData, clearInvoiceData } = invoiceSlice.actions;
+export const { saveInvoiceData, clearInvoiceData, setIdPresupuesto } = invoiceSlice.actions;
 export default invoiceSlice.reducer;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,28 @@ import {
   ScrollView
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
 import { LinearGradient } from 'expo-linear-gradient';
+import { obtenerUltimoIdPresupuestoGlobal } from '@/services/invoiceService';
+import { setIdPresupuesto } from '@/redux/slices/invoiceSlice';
+
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  
+  const generarNuevoIdGlobal = async ()  => {
+    const ultimoId = await obtenerUltimoIdPresupuestoGlobal();
+    const numero = parseInt(ultimoId, 10);
+    const nuevoNumero = numero + 1;
+    console.log('nuevoID', nuevoNumero)
+    dispatch(setIdPresupuesto(String(nuevoNumero).padStart(12, '0')));
+    // return String(nuevoNumero).padStart(12, '0');
+  };
+
+  useEffect(() => {
+    generarNuevoIdGlobal();
+  },[])
 
   return (
     <SafeAreaView style={styles.safeArea}>
