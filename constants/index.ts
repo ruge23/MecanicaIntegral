@@ -151,3 +151,20 @@ export const BRAND_TRUCK = [
   'Scania',
   'Volvo'
 ];
+
+export const formatNumber = (value: number | string): string => {
+  const num = typeof value === 'string' ? parseFloat(value.replace(/\./g, '').replace(',', '.')) : value;
+  
+  if (isNaN(num)) return '0,00';
+
+  return new Intl.NumberFormat('es-ES', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(num);
+};
+
+export const parseInputToNumber = (value: string): number => {
+  const cleaned = value.replace(/[^\d,.-]/g, '');
+  const numericString = cleaned.replace(/\./g, '').replace(',', '.');
+  return parseFloat(numericString) || 0;
+};

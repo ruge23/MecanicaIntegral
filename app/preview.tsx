@@ -41,8 +41,14 @@ const PreviewScreen: React.FC = () => {
       <tr>
         <td>${item.description}</td>
         <td>${item.units}</td>
-        <td>$ ${item.price}</td>
-        <td>$ ${item.total}</td>
+        <td>$ ${item.price.toLocaleString('es-ES', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })}</td>
+        <td>$ ${item.total.toLocaleString('es-ES', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })}</td>
       </tr>
     `).join('');
 
@@ -229,10 +235,19 @@ const PreviewScreen: React.FC = () => {
                 
 
                 <div class="totals">
-                  <p>SUB-TOTAL: $ ${subtotal} </p>
-                  <p>DESCUENTO: $ ${discount} </p>
-                  <p>IVA (${taxRate}%): $ ${(total - subtotal + discount)} </p>
-                  <p>TOTAL PRESUPUESTADO: $ ${total} </p>
+                  <p>SUB-TOTAL: $ ${subtotal.toLocaleString('es-ES', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })} </p>
+                  <p>DESCUENTO: $ ${discount}</p>
+                  <p>IVA (${taxRate}%): $ ${(total - subtotal + discount).toLocaleString('es-ES', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })} </p>
+                  <p>TOTAL PRESUPUESTADO: $ ${total.toLocaleString('es-ES', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })} </p>
                 </div>
 
                 <div class="signature">
@@ -311,17 +326,36 @@ const PreviewScreen: React.FC = () => {
               <View key={`item-${index}`} style={styles.tableRow}>
                 <Text style={styles.tableCell}>{item.description}</Text>
                 <Text style={styles.tableCell}>{item.units}</Text>
-                <Text style={styles.tableCell}>$ {item.price} </Text>
-                <Text style={styles.tableCell}>$ {item.total} </Text>
+                <Text style={styles.tableCell}>$ {item.price.toLocaleString('es-ES', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })} </Text>
+                <Text style={styles.tableCell}>$ {item.total.toLocaleString('es-ES', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })} </Text>
               </View>
             ))}
           </View>
 
           <View style={styles.totalsContainer}>
-            <Text style={styles.totalText}>Sub-total: $ {subtotal}</Text>
-            <Text style={styles.totalText}>Descuento: $ {discount}</Text>
-            <Text style={styles.totalText}>IVA ({taxRate}%): $ {(total - subtotal + discount)} </Text>
-            <Text style={styles.grandTotal}>Total Presupuestado: $ {total}</Text>
+            <Text style={styles.totalText}>Descuento:$ {discount}</Text>
+            <Text style={styles.totalText}>
+              Sub-total:$ {subtotal.toLocaleString('es-ES', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
+            </Text>
+            <Text style={styles.totalText}>IVA ({taxRate}%): $ {(total - subtotal + discount).toLocaleString('es-ES', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })} </Text>
+            <Text style={styles.grandTotal}>
+              Total Presupuestado: $ {total.toLocaleString('es-ES', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
+            </Text>
           </View>
 
           <View style={styles.signatureContainer}>
