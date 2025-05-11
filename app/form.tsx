@@ -1,6 +1,6 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
@@ -43,6 +43,7 @@ const FormScreen = () => {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const dispatch = useDispatch();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  
 
   const handleChange = <T extends keyof FormData>(name: T, value: FormData[T]) => {
     const newData = { ...formData, [name]: value };

@@ -8,10 +8,10 @@ import {
 } from 'firebase/firestore';
 
 // Obtener el último ID de presupuesto
-export const obtenerUltimoIdPresupuestoGlobal = async (): Promise<string> => {
+export const obtenerUltimoIdPresupuestoGlobal = async (flagConfactura: boolean): Promise<string> => {
   try {
     const q = query(
-      collection(db, 'facturas'),
+      collection(db, flagConfactura ? 'conFactura' : 'sinFactura'),
       orderBy('idPresupuesto', 'desc'),
       limit(1)
     );

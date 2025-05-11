@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -18,18 +18,14 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   
-  const generarNuevoIdGlobal = async ()  => {
-    const ultimoId = await obtenerUltimoIdPresupuestoGlobal();
+  const generarNuevoIdGlobal = async (flagConfactura : boolean)  => {
+    const ultimoId = await obtenerUltimoIdPresupuestoGlobal(flagConfactura);
     const numero = parseInt(ultimoId, 10);
     const nuevoNumero = numero + 1;
     console.log('nuevoID', nuevoNumero)
     dispatch(setIdPresupuesto(String(nuevoNumero).padStart(12, '0')));
     // return String(nuevoNumero).padStart(12, '0');
   };
-
-  useEffect(() => {
-    generarNuevoIdGlobal();
-  },[])
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -43,7 +39,12 @@ const HomeScreen = () => {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => navigation.navigate('form')}
+              onPress={() => {
+                generarNuevoIdGlobal(false)
+                navigation.navigate('form', {
+                  flagConFactura: false
+                })
+              }}
             >
               <LinearGradient
                 colors={['#FF4C4C', '#FF0000']}
@@ -57,7 +58,11 @@ const HomeScreen = () => {
 
             <TouchableOpacity
               style={styles.button}
-            //   onPress={() => navigation.navigate('Form')}
+              onPress={() => {
+                generarNuevoIdGlobal(true)
+                navigation.navigate('form', {
+                flagConFactura: true
+              })}}
             >
               <LinearGradient
                 colors={['#FF4C4C', '#FF0000']}

@@ -9,13 +9,13 @@ import {
 import { useSelector } from 'react-redux';
 // import { RootState } from '../redux/store';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
-import { InvoiceData, RootStackParamList } from '../types';
+import { FormScreenRouteParams, InvoiceData, RootStackParamList } from '../types';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
 import { formatBudgetId } from '@/constants';
@@ -26,6 +26,8 @@ const PreviewScreen: React.FC = () => {
   const invoiceData = useSelector((state: any) => state.invoice.invoiceData) as InvoiceData | null;
   const navigation = useNavigation<PreviewScreenNavigationProp>(); 
   const newIdPresupuesto = useSelector((state: any) => state.invoice.idPresupuesto);
+  const route = useRoute<RouteProp<{ Form: FormScreenRouteParams }, 'Form'>>();
+  const { flagConFactura } = route.params;
 
   if (!invoiceData) {
     return (
@@ -272,7 +274,7 @@ const PreviewScreen: React.FC = () => {
         total,
         estado: 'activa'
       };
-      const docRef = await addDoc(collection(db, 'facturas'), nuevaFactura);
+      const docRef = await addDoc(collection(db, flagConFactura ? 'conFactura' : 'sinFactura'), nuevaFactura);
       return { ...nuevaFactura, firebaseId: docRef.id };
     
     } catch (error) {
@@ -286,8 +288,8 @@ const PreviewScreen: React.FC = () => {
       const html = generateInvoiceHTML();
       const { uri: tempUri } = await Print.printToFileAsync({
         html,
-        width: 595,    // Ancho A4 en puntos (210mm)
-        height: 842,   // Alto A4 en puntos (297mm)
+        width: 595, 
+        height: 842,
         base64: false,
         // fileName: `${invoiceData.invoiceNumber || 'NRO'}.pdf` // Nombre personalizado
       });
