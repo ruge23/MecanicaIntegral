@@ -14,9 +14,11 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 import { InvoiceData, RootStackParamList } from '../types';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
+import { formatBudgetId } from '@/constants';
 
 type PreviewScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'preview'>;
 
@@ -186,7 +188,7 @@ const PreviewScreen: React.FC = () => {
               <body>
                 <div class="invoice-info-card">
                   <div class="card-content">
-                    <h1>Presupuesto - ${newIdPresupuesto}</h1>
+                    <h1>Presupuesto - ${formatBudgetId(newIdPresupuesto)}</h1>
                   </div>
                 </div>
                 <div class="divider"></div>
@@ -262,7 +264,7 @@ const PreviewScreen: React.FC = () => {
   const guardarNuevaFacturaDB = async () => {
     try {
       const nuevaFactura = {
-        idPresupuesto: newIdPresupuesto,
+        idPresupuesto: formatBudgetId(newIdPresupuesto),
         numPatente: invoiceData.Patente,
         userId: invoiceData.clientName,
         fechaCreacion: serverTimestamp(),
@@ -282,10 +284,31 @@ const PreviewScreen: React.FC = () => {
   const generatePDF = async (): Promise<void> => {
     try {
       const html = generateInvoiceHTML();
-      const { uri } = await Print.printToFileAsync({ html });
+      const { uri: tempUri } = await Print.printToFileAsync({
+        html,
+        width: 595,    // Ancho A4 en puntos (210mm)
+        height: 842,   // Alto A4 en puntos (297mm)
+        base64: false,
+        // fileName: `${invoiceData.invoiceNumber || 'NRO'}.pdf` // Nombre personalizado
+      });
+
+      // 2. Crear nombre personalizado
+      const newFileName = `${formatBudgetId(newIdPresupuesto)}-${invoiceData.Patente}.pdf`;
+      const directory = FileSystem.cacheDirectory;
+      const newUri = `${directory}${newFileName}`;
+
+      // 3. Renombrar/mover el archivo
+      await FileSystem.moveAsync({
+        from: tempUri,
+        to: newUri
+      });
 
       if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(uri);
+        await Sharing.shareAsync(newUri, {
+          dialogTitle: 'Compartir presupuesto',
+          mimeType: 'application/pdf',
+          UTI: 'com.adobe.pdf'
+        });
         await guardarNuevaFacturaDB();
         navigation.navigate('home');
       }
@@ -298,7 +321,7 @@ const PreviewScreen: React.FC = () => {
     <LinearGradient colors={['#000000', '#1a1a1a']} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.invoiceContainer}>
-          <Text style={styles.invoiceTitle}>Presupuesto #{newIdPresupuesto}</Text>
+          <Text style={styles.invoiceTitle}>Presupuesto #{formatBudgetId(newIdPresupuesto)}</Text>
 
           <View style={styles.header}>
             <Text style={styles.companyName}>{invoiceData.companyName}</Text>

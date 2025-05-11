@@ -168,3 +168,25 @@ export const parseInputToNumber = (value: string): number => {
   const numericString = cleaned.replace(/\./g, '').replace(',', '.');
   return parseFloat(numericString) || 0;
 };
+
+export const formatBudgetId = (idString: string): string => {
+  // Validar que sea string de 12 dígitos
+  if (!/^\d{12}$/.test(idString)) {
+    throw new Error('El ID debe contener exactamente 12 dígitos');
+  }
+
+  // Encontrar la posición del primer dígito no cero
+  const firstNonZero = idString.search(/[1-9]/);
+  
+  // Caso especial para cuando todos son ceros
+  if (firstNonZero === -1) {
+    return '000000000000-0';
+  }
+
+  // Dividir el string en ceros iniciales y el número
+  const zeros = idString.substring(0, firstNonZero);
+  const numberPart = idString.substring(firstNonZero);
+
+  // Formatear con guión
+  return `${zeros}-${numberPart}`;
+};
