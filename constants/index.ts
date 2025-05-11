@@ -1,5 +1,8 @@
 import { DataItemsType } from "@/types";
 
+export const usersAuth = ['santiago', 'ana'];
+export const passwordsAuth = ['159753', '654987'];
+
 export const DATA_ITEMS: DataItemsType = {
   '00 General': [
       '00-00 Varios',

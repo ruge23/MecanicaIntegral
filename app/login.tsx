@@ -53,7 +53,7 @@ const LoginScreen = () => {
       const normalizedUsername = username.toLowerCase().trim();
       console.log('Intento de login con:', { normalizedUsername, password }); // Debug
 
-      if (normalizedUsername === 'santiago' && password === '159753') {
+      if ((normalizedUsername === 'santiago' && password === '159753') || (normalizedUsername === 'ana' && password === '654987')) {
         dispatch(login({ username: normalizedUsername }));
         navigation.reset({
           index: 0,
