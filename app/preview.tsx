@@ -9,13 +9,13 @@ import {
 import { useSelector } from 'react-redux';
 // import { RootState } from '../redux/store';
 import { MaterialIcons } from '@expo/vector-icons';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
-import { FormScreenRouteParams, InvoiceData, RootStackParamList } from '../types';
+import { InvoiceData, RootStackParamList } from '../types';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase/firebaseConfig';
 import { formatBudgetId } from '@/constants';
@@ -24,10 +24,9 @@ type PreviewScreenNavigationProp = NativeStackNavigationProp<RootStackParamList,
 
 const PreviewScreen: React.FC = () => {
   const invoiceData = useSelector((state: any) => state.invoice.invoiceData) as InvoiceData | null;
+  const flagConFactura = useSelector((state: any) => state.invoice.flagConFactura);
   const navigation = useNavigation<PreviewScreenNavigationProp>(); 
   const newIdPresupuesto = useSelector((state: any) => state.invoice.idPresupuesto);
-  const route = useRoute<RouteProp<{ Form: FormScreenRouteParams }, 'Form'>>();
-  const { flagConFactura } = route.params;
 
   if (!invoiceData) {
     return (

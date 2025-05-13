@@ -3,7 +3,7 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 export type RootStackParamList = {
   login: undefined;
   home: undefined;
-  form: { flagConFactura: boolean };
+  form: undefined;
   preview: undefined;
 };
 

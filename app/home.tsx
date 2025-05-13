@@ -11,7 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { LinearGradient } from 'expo-linear-gradient';
 import { obtenerUltimoIdPresupuestoGlobal } from '@/services/invoiceService';
-import { setIdPresupuesto } from '@/redux/slices/invoiceSlice';
+import { setFlagConFactura, setIdPresupuesto } from '@/redux/slices/invoiceSlice';
 
 
 const HomeScreen = () => {
@@ -40,10 +40,9 @@ const HomeScreen = () => {
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
-                generarNuevoIdGlobal(false)
-                navigation.navigate('form', {
-                  flagConFactura: false
-                })
+                generarNuevoIdGlobal(false);
+                setFlagConFactura(false);
+                navigation.navigate('form');
               }}
             >
               <LinearGradient
@@ -59,10 +58,10 @@ const HomeScreen = () => {
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
-                generarNuevoIdGlobal(true)
-                navigation.navigate('form', {
-                flagConFactura: true
-              })}}
+                generarNuevoIdGlobal(true);
+                setFlagConFactura(true);
+                navigation.navigate('form');
+              }}
             >
               <LinearGradient
                 colors={['#FF4C4C', '#FF0000']}
