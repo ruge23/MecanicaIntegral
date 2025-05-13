@@ -1,6 +1,8 @@
+import NumberInput from '@/components/NumberInput';
+import PriceInput from '@/components/PriceInput';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
-import { RouteProp, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
@@ -18,8 +20,6 @@ import { useDispatch } from 'react-redux';
 import { BRAND_TRUCK, DATA_ITEMS, formatNumber, parseInputToNumber } from '../constants';
 import { saveInvoiceData } from '../redux/slices/invoiceSlice';
 import { FormData, RootStackParamList } from '../types';
-import NumberInput from '@/components/NumberInput';
-import PriceInput from '@/components/PriceInput';
 
 const FormScreen = () => {
   const [formData, setFormData] = useState<FormData>({
@@ -133,7 +133,7 @@ const FormScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <LinearGradient colors={['#000000', '#1a1a1a']} style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <Text style={styles.title}>Nuevo Presupuesto S/Factura</Text>
+          <Text style={styles.title}>Nuevo Presupuesto</Text>
 
           <View style={styles.form}>
             <Text style={styles.subtitle}>Datos del Cliente</Text>

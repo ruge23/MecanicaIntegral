@@ -8,17 +8,17 @@ import {
 } from 'react-native';
 import { useSelector } from 'react-redux';
 // import { RootState } from '../redux/store';
+import { formatBudgetId } from '@/constants';
+import { db } from '@/firebase/firebaseConfig';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import * as FileSystem from 'expo-file-system';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system';
-import { InvoiceData, RootStackParamList } from '../types';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/firebase/firebaseConfig';
-import { formatBudgetId } from '@/constants';
+import { InvoiceData, RootStackParamList } from '../types';
 
 type PreviewScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'preview'>;
 
@@ -194,7 +194,7 @@ const PreviewScreen: React.FC = () => {
                 </div>
                 <div class="divider"></div>
                 <div class="header-container">
-                  <div class="left-cards">
+                  <div class="center-cards">
                     <div class="company-card">
                       <p class="bold">${invoiceData.companyName}</p>
                       <p>Dirección: ${invoiceData.companyAddress}</p>
@@ -203,7 +203,7 @@ const PreviewScreen: React.FC = () => {
                       <p>Email: ${invoiceData.companyEmail}</p>
                     </div>
                   </div>
-                  <div class="right-info">
+                  <div class="left-info">
                     <div class="client-data">
                       <p class="bold">Datos del Cliente: </p>
                       <p>Nombre: ${invoiceData.clientName || 'Nombre del cliente'}</p>
@@ -375,7 +375,7 @@ const PreviewScreen: React.FC = () => {
                 maximumFractionDigits: 2
               })} </Text>
             <Text style={styles.grandTotal}>
-              Total Presupuestado: $ {total.toLocaleString('es-ES', {
+              Total Presupuestado:                        $ {total.toLocaleString('es-ES', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
               })}
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
     padding: 8,
     color: '#fff',
     textAlign: 'center',
-    fontSize: 11,
+    fontSize: 8,
   },
   totalsContainer: {
     marginTop: 20,
@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
     marginVertical: 3,
   },
   grandTotal: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: 'bold',
     color: '#FF4C4C',
     marginTop: 10,
