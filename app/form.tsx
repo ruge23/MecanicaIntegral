@@ -41,20 +41,21 @@ const FormScreen = () => {
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{ patente?: string }>({});
   const dispatch = useDispatch();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const flagConFactura = useSelector((state: any) => state.invoice.flagConFactura);
 
   const handleChange = <T extends keyof FormData>(name: T, value: FormData[T]) => {
     const newData = { ...formData, [name]: value };
-    
+
     // Recalcular totales si cambia descuento o IVA
     if (name === 'discount' || name === 'taxRate') {
       const { subtotal, totalWithTax } = calculateTotals(newData);
       newData.subtotal = subtotal;
       newData.total = totalWithTax;
     }
-    
+
     setFormData(newData);
   };
 
@@ -90,21 +91,26 @@ const FormScreen = () => {
 
   const calculateTotals = (data = formData) => {
     const subtotal = parseFloat(data.items.reduce(
-      (sum, item) => sum + (item?.total || 0), 
+      (sum, item) => sum + (item?.total || 0),
       0
     ).toFixed(2));
-    
+
     const discountPercentage = data.discount || 0;
     const discountAmount = parseFloat((subtotal * discountPercentage / 100).toFixed(2));
     const taxRate = data.taxRate || 21;
-    
+
     const totalBeforeTax = parseFloat((subtotal - discountAmount).toFixed(2));
     const totalWithTax = parseFloat((totalBeforeTax * (1 + taxRate / 100)).toFixed(2));
-    
+
     return { subtotal, discountAmount, totalBeforeTax, totalWithTax };
   };
 
   const handleSubmit = () => {
+    if (!formData.Patente?.trim()) {
+      setErrors({ patente: "La patente es obligatoria" });
+      return;
+    }
+    setErrors({});
     const { subtotal, discountAmount, totalWithTax } = calculateTotals();
     const invoiceData = { ...formData, subtotal, total: totalWithTax, discount: discountAmount };
     dispatch(saveInvoiceData(invoiceData));
@@ -190,12 +196,21 @@ const FormScreen = () => {
             />
 
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                errors.patente && styles.inputError, // Aplica estilo de error si existe
+              ]}
               placeholder="Patente"
               placeholderTextColor="#888"
               value={formData.Patente}
-              onChangeText={(text) => handleChange('Patente', text)}
+              onChangeText={(text) => {
+                handleChange('Patente', text);
+                if (errors.patente) setErrors({}); // Limpiar error al editar
+              }}
             />
+            {errors.patente && (
+              <Text style={styles.errorText}>{errors.patente}</Text>
+            )}
 
             <TextInput
               style={styles.input}
@@ -312,31 +327,31 @@ const FormScreen = () => {
                 placeholder="0"
               />
 
-            { flagConFactura && (
-              <>
-                <Text style={styles.label}>IVA (%):</Text>
-                <TextInput
-                  style={styles.input}
-                  keyboardType="numeric"
-                  value={formData.taxRate.toString()}
-                  onChangeText={(text) => {
-                    handleChange('taxRate', parseInputToNumber(text));
-                  }}
-                />
-              </>
-            )}
+              {flagConFactura && (
+                <>
+                  <Text style={styles.label}>IVA (%):</Text>
+                  <TextInput
+                    style={styles.input}
+                    keyboardType="numeric"
+                    value={formData.taxRate.toString()}
+                    onChangeText={(text) => {
+                      handleChange('taxRate', parseInputToNumber(text));
+                    }}
+                  />
+                </>
+              )}
 
               <Text style={styles.totalText}>
                 Subtotal: ${formatNumber(calculateTotals().subtotal)}
               </Text>
               <Text style={styles.totalText}>
                 Total después de descuento: ${formatNumber(calculateTotals().totalBeforeTax)}
-              </Text> 
-              { flagConFactura && (
+              </Text>
+              {flagConFactura && (
                 <Text style={styles.totalText}>
                   Total con IVA: ${formatNumber(calculateTotals().totalWithTax)}
                 </Text>
-               )}
+              )}
             </View>
 
             <TouchableOpacity
@@ -400,6 +415,16 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
     borderColor: '#444',
+  },
+  inputError: {
+    borderColor: "#FF4C4C", // Borde rojo para indicar error
+    borderWidth: 2,
+  },
+  errorText: {
+    color: "#FF4C4C",
+    fontSize: 12,
+    marginTop: -8,
+    marginBottom: 12,
   },
   pickerContainer: {
     backgroundColor: '#222',
