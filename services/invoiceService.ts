@@ -12,7 +12,7 @@ export const obtenerUltimoIdPresupuestoGlobal = async (flagConfactura: boolean):
   try {
     const q = query(
       collection(db, flagConfactura ? 'conFactura' : 'sinFactura'),
-      orderBy('idPresupuesto', 'desc'),
+      orderBy('fechaCreacion', 'desc'),
       limit(1)
     );
 
@@ -21,11 +21,13 @@ export const obtenerUltimoIdPresupuestoGlobal = async (flagConfactura: boolean):
     console.log('Obtener el último ID de presupuesto',querySnapshot.empty);
     if (!querySnapshot.empty) {
       const ultimaFactura = querySnapshot.docs[0].data();
+      console.log('ultimaFactura',querySnapshot.docs);
+      console.log('ultimaFactura.idPresupuesto',ultimaFactura.idPresupuesto);
       return ultimaFactura.idPresupuesto;
     }
 
     // Si no hay facturas, devolver "000000000000"
-    return '000000000000';
+    return '0';
 
   } catch (error) {
     console.error("Error al obtener último ID global:", error);

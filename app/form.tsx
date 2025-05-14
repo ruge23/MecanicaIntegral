@@ -16,9 +16,9 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { BRAND_TRUCK, DATA_ITEMS, formatNumber, parseInputToNumber } from '../constants';
-import { saveInvoiceData } from '../redux/slices/invoiceSlice';
+import { clearFormData, saveInvoiceData } from '../redux/slices/invoiceSlice';
 import { FormData, RootStackParamList } from '../types';
 
 const FormScreen = () => {
@@ -43,7 +43,7 @@ const FormScreen = () => {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const dispatch = useDispatch();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  
+  const flagConFactura = useSelector((state: any) => state.invoice.flagConFactura);
 
   const handleChange = <T extends keyof FormData>(name: T, value: FormData[T]) => {
     const newData = { ...formData, [name]: value };
@@ -127,13 +127,16 @@ const FormScreen = () => {
       headerShown: false,
       gestureEnabled: false
     });
-  }, [navigation]);
+    return () => {
+      dispatch(clearFormData());
+    };
+  }, [navigation, dispatch]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <LinearGradient colors={['#000000', '#1a1a1a']} style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <Text style={styles.title}>Nuevo Presupuesto</Text>
+          <Text style={styles.title}>Nuevo Presupuesto {flagConFactura ? 'Con Factura' : 'Sin Factura'}</Text>
 
           <View style={styles.form}>
             <Text style={styles.subtitle}>Datos del Cliente</Text>

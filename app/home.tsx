@@ -18,13 +18,27 @@ const HomeScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   
+  const generarSiguienteId = (presupuestoActual: string | null | undefined): string => {
+    // Casos iniciales: null, undefined, string vacío o "0"
+    if (!presupuestoActual || presupuestoActual === '0') {
+        return '00000000000-1';
+    }
+    // Extraer y aumentar el número
+    const partes = presupuestoActual.split('-');
+    const siguienteNumero = parseInt(partes[1], 10) + 1;
+    // Reconstruir manteniendo 12 dígitos
+    const cerosNecesarios = 11 - siguienteNumero.toString().length;
+    const ceros = '0'.repeat(Math.max(0, cerosNecesarios));
+    
+    return `${ceros}-${siguienteNumero}`;
+  }
+
   const generarNuevoIdGlobal = async (flagConfactura : boolean)  => {
+    dispatch(setFlagConFactura(flagConfactura));
     const ultimoId = await obtenerUltimoIdPresupuestoGlobal(flagConfactura);
-    const numero = parseInt(ultimoId, 10);
-    const nuevoNumero = numero + 1;
-    console.log('nuevoID', nuevoNumero)
-    dispatch(setIdPresupuesto(String(nuevoNumero).padStart(12, '0')));
-    // return String(nuevoNumero).padStart(12, '0');
+    console.log('ultimoId', ultimoId);
+    const nuevoId = generarSiguienteId(ultimoId)
+    dispatch(setIdPresupuesto(nuevoId));
   };
 
   return (
@@ -41,7 +55,6 @@ const HomeScreen = () => {
               style={styles.button}
               onPress={() => {
                 generarNuevoIdGlobal(false);
-                setFlagConFactura(false);
                 navigation.navigate('form');
               }}
             >
@@ -59,7 +72,6 @@ const HomeScreen = () => {
               style={styles.button}
               onPress={() => {
                 generarNuevoIdGlobal(true);
-                setFlagConFactura(true);
                 navigation.navigate('form');
               }}
             >

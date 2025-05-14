@@ -1,14 +1,14 @@
 import React from 'react';
 import {
+  AppState,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 // import { RootState } from '../redux/store';
-import { formatBudgetId } from '@/constants';
 import { db } from '@/firebase/firebaseConfig';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -27,7 +27,7 @@ const PreviewScreen: React.FC = () => {
   const flagConFactura = useSelector((state: any) => state.invoice.flagConFactura);
   const navigation = useNavigation<PreviewScreenNavigationProp>(); 
   const newIdPresupuesto = useSelector((state: any) => state.invoice.idPresupuesto);
-
+  
   if (!invoiceData) {
     return (
       <View style={styles.container}>
@@ -189,7 +189,7 @@ const PreviewScreen: React.FC = () => {
               <body>
                 <div class="invoice-info-card">
                   <div class="card-content">
-                    <h1>Presupuesto - ${formatBudgetId(newIdPresupuesto)}</h1>
+                    <h1>Presupuesto - ${newIdPresupuesto}</h1>
                   </div>
                 </div>
                 <div class="divider"></div>
@@ -265,7 +265,7 @@ const PreviewScreen: React.FC = () => {
   const guardarNuevaFacturaDB = async () => {
     try {
       const nuevaFactura = {
-        idPresupuesto: formatBudgetId(newIdPresupuesto),
+        idPresupuesto: newIdPresupuesto,
         numPatente: invoiceData.Patente,
         userId: invoiceData.clientName,
         fechaCreacion: serverTimestamp(),
@@ -294,7 +294,7 @@ const PreviewScreen: React.FC = () => {
       });
 
       // 2. Crear nombre personalizado
-      const newFileName = `${formatBudgetId(newIdPresupuesto)}-${invoiceData.Patente}.pdf`;
+      const newFileName = `${newIdPresupuesto}-${invoiceData.Patente}.pdf`;
       const directory = FileSystem.cacheDirectory;
       const newUri = `${directory}${newFileName}`;
 
@@ -305,13 +305,22 @@ const PreviewScreen: React.FC = () => {
       });
 
       if (await Sharing.isAvailableAsync()) {
+        const subscription = AppState.addEventListener('change', async (nextAppState) => {
+          if (nextAppState === 'active') {
+            await guardarNuevaFacturaDB();
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'home' }],
+            });
+            subscription.remove();
+          }
+        });
         await Sharing.shareAsync(newUri, {
           dialogTitle: 'Compartir presupuesto',
           mimeType: 'application/pdf',
           UTI: 'com.adobe.pdf'
         });
-        await guardarNuevaFacturaDB();
-        navigation.navigate('home');
+        
       }
     } catch (error) {
       console.error('Error al generar PDF:', error);
@@ -322,7 +331,7 @@ const PreviewScreen: React.FC = () => {
     <LinearGradient colors={['#000000', '#1a1a1a']} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.invoiceContainer}>
-          <Text style={styles.invoiceTitle}>Presupuesto #{formatBudgetId(newIdPresupuesto)}</Text>
+          <Text style={styles.invoiceTitle}>Presupuesto #{newIdPresupuesto}</Text>
 
           <View style={styles.header}>
             <Text style={styles.companyName}>{invoiceData.companyName}</Text>
@@ -375,7 +384,7 @@ const PreviewScreen: React.FC = () => {
                 maximumFractionDigits: 2
               })} </Text>
             <Text style={styles.grandTotal}>
-              Total Presupuestado:                        $ {total.toLocaleString('es-ES', {
+              Total Presupuestado: $ {total.toLocaleString('es-ES', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
               })}

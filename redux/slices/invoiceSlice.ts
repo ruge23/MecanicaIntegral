@@ -4,33 +4,33 @@ import { FormData } from '../../types';
 interface InvoiceState {
   invoiceData: FormData | null;
   idPresupuesto: string;
-  flagConFactura: boolean;
+  flagConFactura: boolean | null;
 }
 
 const initialState: InvoiceState = {
   invoiceData: null,
   idPresupuesto: '',
-  flagConFactura: false
+  flagConFactura: null
 };
 
 const invoiceSlice = createSlice({
   name: 'invoice',
   initialState,
   reducers: {
-    saveInvoiceData: (state, action: PayloadAction<FormData>) => {
+    saveInvoiceData: (state, action: PayloadAction<FormData | null>) => {
       state.invoiceData = action.payload;
-    },
-    clearInvoiceData: (state) => {
-      state.invoiceData = null;
     },
     setIdPresupuesto: (state, action) => {
       state.idPresupuesto = action.payload;
     },
     setFlagConFactura: (state, action) => {
       state.flagConFactura = action.payload;
-    }
+    },
+    clearFormData: () => {
+      return initialState; // Esto restablece el estado a los valores iniciales
+    },
   },
 });
 
-export const { saveInvoiceData, clearInvoiceData, setIdPresupuesto, setFlagConFactura } = invoiceSlice.actions;
+export const { saveInvoiceData, setIdPresupuesto, setFlagConFactura, clearFormData } = invoiceSlice.actions;
 export default invoiceSlice.reducer;
