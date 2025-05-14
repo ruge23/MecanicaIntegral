@@ -277,7 +277,7 @@ const FormScreen = () => {
                 />
 
                 <Text style={styles.totalText}>
-                  Total: {item.total.toLocaleString('es-ES', {
+                  Total: $ {item.total.toLocaleString('es-ES', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                   })}
@@ -300,7 +300,7 @@ const FormScreen = () => {
             </TouchableOpacity>
 
             <View style={styles.totalsContainer}>
-              <Text style={styles.label}>Descuento: $</Text>
+              <Text style={styles.label}>Descuento en porcentaje (%):</Text>
               <NumberInput
                 style={styles.input}
                 value={formData.discount}
