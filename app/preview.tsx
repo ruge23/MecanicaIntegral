@@ -240,7 +240,10 @@ const PreviewScreen: React.FC = () => {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                   })} </p>
-                  <p>DESCUENTO: $ ${discount}</p>
+                  <p>DESCUENTO: $ ${discount.toLocaleString('es-ES', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })}</p>
                   ${ flagConFactura ? 
                     `<p>IVA (${taxRate}%): $ ${(total - subtotal + discount).toLocaleString('es-ES', {
                       minimumFractionDigits: 2,
@@ -250,7 +253,7 @@ const PreviewScreen: React.FC = () => {
                   <p>TOTAL PRESUPUESTADO: $ ${ flagConFactura ? total.toLocaleString('es-ES', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
-                  }) : subtotal.toLocaleString('es-ES', {
+                  }) : (subtotal - discount).toLocaleString('es-ES', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                   })} </p>
