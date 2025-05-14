@@ -312,25 +312,31 @@ const FormScreen = () => {
                 placeholder="0"
               />
 
-              <Text style={styles.label}>IVA (%):</Text>
-              <TextInput
-                style={styles.input}
-                keyboardType="numeric"
-                value={formData.taxRate.toString()}
-                onChangeText={(text) => {
-                  handleChange('taxRate', parseInputToNumber(text));
-                }}
-              />
+            { flagConFactura && (
+              <>
+                <Text style={styles.label}>IVA (%):</Text>
+                <TextInput
+                  style={styles.input}
+                  keyboardType="numeric"
+                  value={formData.taxRate.toString()}
+                  onChangeText={(text) => {
+                    handleChange('taxRate', parseInputToNumber(text));
+                  }}
+                />
+              </>
+            )}
 
               <Text style={styles.totalText}>
                 Subtotal: ${formatNumber(calculateTotals().subtotal)}
               </Text>
               <Text style={styles.totalText}>
                 Total después de descuento: ${formatNumber(calculateTotals().totalBeforeTax)}
-              </Text>
-              <Text style={styles.totalText}>
-                Total con IVA: ${formatNumber(calculateTotals().totalWithTax)}
-              </Text>
+              </Text> 
+              { flagConFactura && (
+                <Text style={styles.totalText}>
+                  Total con IVA: ${formatNumber(calculateTotals().totalWithTax)}
+                </Text>
+               )}
             </View>
 
             <TouchableOpacity

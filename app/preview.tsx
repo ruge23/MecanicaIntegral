@@ -77,16 +77,14 @@ const PreviewScreen: React.FC = () => {
                   }
                   .header-container {
                     display: flex;
-                    justify-content: space-between;
+                    justify-content: space-around; /* Cambiado a space-around */
                     margin-bottom: 20px;
                   }
                   .left-cards {
                     width: 30%;
                   }
                   .right-info {
-                    width: 60%;
-                    // border-left: 1px solid #ddd;
-                    // padding-left: 15px;
+                    width: 50%; /* Reduje el ancho para que el espacio alrededor se note más */
                   }
                   .company-card, 
                   .client-data,
@@ -194,7 +192,7 @@ const PreviewScreen: React.FC = () => {
                 </div>
                 <div class="divider"></div>
                 <div class="header-container">
-                  <div class="center-cards">
+                  <div class="left-cards">
                     <div class="company-card">
                       <p class="bold">${invoiceData.companyName}</p>
                       <p>Dirección: ${invoiceData.companyAddress}</p>
@@ -203,7 +201,7 @@ const PreviewScreen: React.FC = () => {
                       <p>Email: ${invoiceData.companyEmail}</p>
                     </div>
                   </div>
-                  <div class="left-info">
+                  <div class="right-info">
                     <div class="client-data">
                       <p class="bold">Datos del Cliente: </p>
                       <p>Nombre: ${invoiceData.clientName || 'Nombre del cliente'}</p>
@@ -243,11 +241,16 @@ const PreviewScreen: React.FC = () => {
                     maximumFractionDigits: 2
                   })} </p>
                   <p>DESCUENTO: $ ${discount}</p>
-                  <p>IVA (${taxRate}%): $ ${(total - subtotal + discount).toLocaleString('es-ES', {
+                  ${ flagConFactura ? 
+                    `<p>IVA (${taxRate}%): $ ${(total - subtotal + discount).toLocaleString('es-ES', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    })}</p>` 
+                    : '' }
+                  <p>TOTAL PRESUPUESTADO: $ ${ flagConFactura ? total.toLocaleString('es-ES', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
-                  })} </p>
-                  <p>TOTAL PRESUPUESTADO: $ ${total.toLocaleString('es-ES', {
+                  }) : subtotal.toLocaleString('es-ES', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                   })} </p>
@@ -372,22 +375,30 @@ const PreviewScreen: React.FC = () => {
           </View>
 
           <View style={styles.totalsContainer}>
-            <Text style={styles.totalText}>Descuento:$ {discount}</Text>
+            <Text style={styles.totalText}>Descuento:$ {discount.toLocaleString('es-ES', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}</Text>
             <Text style={styles.totalText}>
               Sub-total:$ {subtotal.toLocaleString('es-ES', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
               })}
             </Text>
-            <Text style={styles.totalText}>IVA ({taxRate}%): $ {(total - subtotal + discount).toLocaleString('es-ES', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })} </Text>
+            { flagConFactura && (
+              <Text style={styles.totalText}>IVA ({taxRate}%): $ {(total - subtotal + discount).toLocaleString('es-ES', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })} </Text>
+            )}
             <Text style={styles.grandTotal}>
-              Total Presupuestado: $ {total.toLocaleString('es-ES', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })}
+              Total Presupuestado: $ { flagConFactura ? total.toLocaleString('es-ES', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  }) : (subtotal - discount).toLocaleString('es-ES', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })} 
             </Text>
           </View>
 
