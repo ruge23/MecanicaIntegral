@@ -152,7 +152,8 @@ export const BRAND_TRUCK = [
   'Iveco',
   'Mercedes-Benz',
   'Scania',
-  'Volvo'
+  'Volvo',
+  'Ford'
 ];
 
 export const formatNumber = (value: number | string): string => {

@@ -1,17 +1,17 @@
+import { setFlagConFactura, setIdPresupuesto } from '@/redux/slices/invoiceSlice';
+import { obtenerUltimoIdPresupuestoGlobal } from '@/services/invoiceService';
+import { useNavigation } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import {
-  View,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView
+  View
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
-import { LinearGradient } from 'expo-linear-gradient';
-import { obtenerUltimoIdPresupuestoGlobal } from '@/services/invoiceService';
-import { setFlagConFactura, setIdPresupuesto } from '@/redux/slices/invoiceSlice';
 
 
 const HomeScreen = () => {
@@ -84,6 +84,25 @@ const HomeScreen = () => {
                 <Text style={styles.buttonText}>Presupuesto con Factura</Text>
               </LinearGradient>
             </TouchableOpacity>
+
+
+              <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                generarNuevoIdGlobal(true);
+                navigation.navigate('checklist');
+              }}
+            >
+              <LinearGradient
+                colors={['#FF4C4C', '#FF0000']}
+                style={styles.gradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                <Text style={styles.buttonText}>Check List</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
           </View>
 
           <View style={styles.spacer} />

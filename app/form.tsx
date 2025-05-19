@@ -284,7 +284,7 @@ const FormScreen = () => {
                   placeholder="0"
                 />
 
-                <Text style={styles.label}>Precio:</Text>
+                <Text style={styles.label}>Precio: </Text>
                 <PriceInput
                   value={item.price}
                   onChangeText={(value) => handleItemChange(index, 'price', value)}
