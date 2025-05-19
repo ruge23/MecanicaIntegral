@@ -3,17 +3,29 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+interface FormData {
+  [key: string]: {
+    [key: number]: boolean;
+  };
+}
+
+interface CheckItemProps {
+  number: number;
+  title: string;
+  description: string;
+  checked?: boolean;
+  onChange: () => void;
+}
 
 const VehicleCheckScreen = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [formData, setFormData] = useState({});
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [formData, setFormData] = useState<FormData>({});
   const navigation = useNavigation();
 
   const handleNext = () => {
     if (currentPage < 4) {
       setCurrentPage(currentPage + 1);
     } else {
-      // Guardar datos y navegar
       navigation.goBack();
     }
   };
@@ -74,42 +86,39 @@ const VehicleCheckScreen = () => {
         number={5} 
         title="Sistema de combustible" 
         description="Compruebe que no haya fugas de gas antes de trabajar en el taller."
-        checked={formData?.conduccion?.[4]}
-        onChange={() => handleCheckboxChange('conduccion', 4)}
+        checked={formData?.conduccion?.[5]}
+        onChange={() => handleCheckboxChange('conduccion', 5)}
       />
 
       <CheckItem 
         number={6} 
         title="Sistema de combustible" 
         description="Compruebe que el vehiculo no tiene fugas de combustible antes de entrar en el taller."
-        checked={formData?.conduccion?.[4]}
-        onChange={() => handleCheckboxChange('conduccion', 4)}
+        checked={formData?.conduccion?.[6]}
+        onChange={() => handleCheckboxChange('conduccion', 6)}
       />
 
       <CheckItem 
         number={7} 
-        title="Funcion de arranque y parada automatico a ralentí" 
-        description="Asegurese que la llave de encendido/boton de encendido este en el modo de conduccion y que la funion este desactivada a traves del interruptor para detener y arrancar el ralentí."
-        checked={formData?.conduccion?.[4]}
-        onChange={() => handleCheckboxChange('conduccion', 4)}
+        title="Función de arranque y parada automático a ralentí" 
+        description="Asegúrese que la llave de encendido/botón de encendido esté en el modo de conducción y que la función esté desactivada a través del interruptor para detener y arrancar el ralentí."
+        checked={formData?.conduccion?.[7]}
+        onChange={() => handleCheckboxChange('conduccion', 7)}
       />
 
       <CheckItem 
         number={8} 
-        title="Vehiculos híbridos" 
-        description="Realizar los Procedimientos para operaciones de taller en vehiculos hibridos antes de comenzar el trabajo. En las instrucciones se puede encontrar informacion sobre estos procedimientos."
-        checked={formData?.conduccion?.[4]}
-        onChange={() => handleCheckboxChange('conduccion', 4)}
+        title="Vehículos híbridos" 
+        description="Realizar los Procedimientos para operaciones de taller en vehículos híbridos antes de comenzar el trabajo. En las instrucciones se puede encontrar información sobre estos procedimientos."
+        checked={formData?.conduccion?.[8]}
+        onChange={() => handleCheckboxChange('conduccion', 8)}
       />
-
-      
     </View>
   );
 
   const renderPage2 = () => (
     <View style={styles.pageContainer}>
-
-<Text style={styles.sectionTitle}>En la cabina</Text>
+      <Text style={styles.sectionTitle}>En la cabina</Text>
       
       {[9, 10, 11, 12].map(num => (
         <CheckItem 
@@ -172,7 +181,7 @@ const VehicleCheckScreen = () => {
       <Text style={[styles.sectionTitle, {marginTop: 20}]}>Bajada de la cabina</Text>
       <CheckItem 
         number={37} 
-        title="Vehiculos hibridos" 
+        title="Vehículos híbridos" 
         description="Realizar los Procedimientos para operaciones de taller en vehículos híbridos antes de comenzar el trabajo."
         checked={formData?.hibridos?.[37]}
         onChange={() => handleCheckboxChange('hibridos', 37)}
@@ -188,7 +197,7 @@ const VehicleCheckScreen = () => {
           
           <View style={styles.headerInfo}>
             <Text style={styles.infoText}>SCANIA</Text>
-            <Text style={styles.infoText}>N.º de matrícula: {formData.plate || '---'}</Text>
+            {/* <Text style={styles.infoText}>N.º de matrícula: {formData.plate || '---'}</Text> */}
           </View>
 
           {currentPage === 1 && renderPage1()}
@@ -221,15 +230,17 @@ const VehicleCheckScreen = () => {
   );
 };
 
-// Componente para cada ítem de verificación
-const CheckItem = ({ number, title, description, checked, onChange }) => (
+const CheckItem: React.FC<CheckItemProps> = ({ number, title, description, checked = false, onChange }) => (
   <View style={styles.itemContainer}>
-    <TouchableOpacity 
-      style={[styles.checkbox, checked && styles.checkedBox]}
-      onPress={onChange}
-    >
-      <Text style={styles.checkboxText}>{number}</Text>
-    </TouchableOpacity>
+    <View style={styles.checkboxContainer}>
+      <Text style={styles.itemNumber}>{number}.</Text>
+      <TouchableOpacity 
+        style={[styles.checkbox, checked && styles.checkedBox]}
+        onPress={onChange}
+      >
+        {checked && <Text style={styles.checkmark}>✓</Text>}
+      </TouchableOpacity>
+    </View>
     
     <View style={styles.itemContent}>
       <Text style={styles.itemTitle}>{title}</Text>
@@ -239,8 +250,8 @@ const CheckItem = ({ number, title, description, checked, onChange }) => (
 );
 
 // Funciones helper para obtener títulos y descripciones
-const getCabinaTitle = (num: number) => {
-  const titles = {
+const getCabinaTitle = (num: number): string => {
+  const titles: {[key: number]: string} = {
     9: 'Frenos de disco',
     10: 'Parabrisas, limpiaparabrisas',
     11: 'Retrovisores',
@@ -249,8 +260,8 @@ const getCabinaTitle = (num: number) => {
   return titles[num] || '';
 };
 
-const getCabinaDescription = (num: number) => {
-  const descriptions = {
+const getCabinaDescription = (num: number): string => {
+  const descriptions: {[key: number]: string} = {
     9: 'Compruebe el grosor de los forros de freno.',
     10: 'Comprobar el parabrisas, los limpiaparabrisas y la función de lavado.',
     11: 'Compruebe si hay daños. Compruebe su ajuste y funcionamiento de la calefacción.',
@@ -259,8 +270,8 @@ const getCabinaDescription = (num: number) => {
   return descriptions[num] || '';
 };
 
-const getExteriorTitle = (num: number) => {
-  const titles = {
+const getExteriorTitle = (num: number): string => {
+  const titles: {[key: number]: string} = {
     13: 'Iluminación exterior',
     14: 'Ruedas',
     15: 'Carrocería',
@@ -270,8 +281,8 @@ const getExteriorTitle = (num: number) => {
   return titles[num] || '';
 };
 
-const getExteriorDescription = (num: number) => {
-  const descriptions = {
+const getExteriorDescription = (num: number): string => {
+  const descriptions: {[key: number]: string} = {
     13: 'Compruebe si hay daños. Realice una comprobación del funcionamiento.',
     14: 'Comprobar si la llanta y el neumático están dañados y los patrones de desgaste.',
     15: 'Comprobar si hay daños.',
@@ -281,8 +292,8 @@ const getExteriorDescription = (num: number) => {
   return descriptions[num] || '';
 };
 
-const getBasculadaTitle = (num: number) => {
-  const titles = {
+const getBasculadaTitle = (num: number): string => {
+  const titles: {[key: number]: string} = {
     18: 'Sistema de basculamiento de la cabina',
     19: 'Fugas',
     20: 'Sistema de refrigeración',
@@ -294,8 +305,8 @@ const getBasculadaTitle = (num: number) => {
   return titles[num] || '';
 };
 
-const getBasculadaDescription = (num: number) => {
-  const descriptions = {
+const getBasculadaDescription = (num: number): string => {
+  const descriptions: {[key: number]: string} = {
     18: 'Efectúe una prueba de funcionamiento y compruebe si hay fugas procedentes de la bomba y el cilindro hidráulico.',
     19: 'Compruebe si hay fugas de aceite, refrigerante, combustible, aire o gases de escape.',
     20: 'Comprobar las correas de transmisión, el tensor de correa y las poleas locas.',
@@ -307,8 +318,8 @@ const getBasculadaDescription = (num: number) => {
   return descriptions[num] || '';
 };
 
-const getMecanicosTitle = (num: number) => {
-  const titles = {
+const getMecanicosTitle = (num: number): string => {
+  const titles: {[key: number]: string} = {
     25: 'Calderines de aire comprimido',
     26: 'Sistema de escape',
     27: 'Suspensión',
@@ -325,8 +336,8 @@ const getMecanicosTitle = (num: number) => {
   return titles[num] || '';
 };
 
-const getMecanicosDescription = (num: number) => {
-  const descriptions = {
+const getMecanicosDescription = (num: number): string => {
+  const descriptions: {[key: number]: string} = {
     25: 'Vaciar el agua de condensación. Comprobar que los calderines no presenten corrosión ni daños externos.',
     26: 'Compruebe si hay daños y holgura.',
     27: 'Compruebe si hay daños. Compruebe si hay fugas.',
@@ -343,7 +354,6 @@ const getMecanicosDescription = (num: number) => {
   return descriptions[num] || '';
 };
 
-// Estilos (consistentes con tu aplicación MIT)
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -395,22 +405,35 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
   },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  itemNumber: {
+    color: '#FF4C4C',
+    fontWeight: 'bold',
+    marginRight: 8,
+    width: 24,
+    textAlign: 'right',
+  },
   checkbox: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 24,
+    height: 24,
+    borderRadius: 4,
     borderWidth: 2,
     borderColor: '#FF4C4C',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    backgroundColor: 'transparent',
   },
   checkedBox: {
     backgroundColor: '#FF4C4C',
   },
-  checkboxText: {
+  checkmark: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 16,
   },
   itemContent: {
     flex: 1,

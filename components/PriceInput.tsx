@@ -5,18 +5,26 @@ interface PriceInputProps extends Omit<TextInputProps, 'value' | 'onChangeText'>
   value: number;
   onChangeText: (numericValue: number) => void;
   style?: StyleProp<TextStyle>;
+  decimalPlaces?: number;
 }
 
-const PriceInput: React.FC<PriceInputProps> = ({ value, onChangeText, style, ...props }) => {
+
+const PriceInput: React.FC<PriceInputProps> = ({ value, onChangeText, style, decimalPlaces, ...props }) => {
   const [inputValue, setInputValue] = useState('');
+
+  const formatNumber = (num: number): string => {
+    if (decimalPlaces === 0) {
+      return Math.round(num).toLocaleString('es-ES');
+    }
+    return num.toLocaleString('es-ES', {
+      minimumFractionDigits: decimalPlaces,
+      maximumFractionDigits: decimalPlaces
+    });
+  };
 
   // Convertir el valor numérico a string con coma decimal al cargar
   useEffect(() => {
-    if (value === 0) {
-      setInputValue('');
-    } else {
-      setInputValue(value.toString().replace('.', ','));
-    }
+    setInputValue(formatNumber(value))
   }, [value]);
 
   const handleChange = (text: string) => {

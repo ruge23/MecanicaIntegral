@@ -90,7 +90,7 @@ const HomeScreen = () => {
               style={styles.button}
               onPress={() => {
                 generarNuevoIdGlobal(true);
-                navigation.navigate('checklist');
+                navigation.navigate('checklist/index');
               }}
             >
               <LinearGradient

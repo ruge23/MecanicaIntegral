@@ -288,6 +288,7 @@ const FormScreen = () => {
                 <PriceInput
                   value={item.price}
                   onChangeText={(value) => handleItemChange(index, 'price', value)}
+                  decimalPlaces={0}
                   style={styles.input}
                 />
 

@@ -5,6 +5,9 @@ export type RootStackParamList = {
   home: undefined;
   form: undefined;
   preview: undefined;
+  checklist: undefined;
+  'checklist/index':undefined;
+  'checklist/checklistitems': undefined;
 };
 
 export type FormData = {
