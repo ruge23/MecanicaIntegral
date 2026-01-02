@@ -1,14 +1,74 @@
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { 
+    ScrollView, 
+    StyleSheet, 
+    Text, 
+    TouchableOpacity, 
+    View, 
+    Alert, 
+    ActivityIndicator,
+    Platform,
+    StatusBar 
+} from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 
+// --- 1. BASE DE DATOS MAESTRA DE ÍTEMS ---
+// Centralizamos todo aquí para no tener switchs gigantes
+const CHECKLIST_DATA: { [key: number]: { title: string, desc: string } } = {
+  // PÁGINA 1: Prueba de conducción
+  1: { title: "Volante", desc: "Compruebe la posición de marcha en línea recta y el ajuste del volante." },
+  2: { title: "Embrague y caja", desc: "Realizar una comprobación del funcionamiento." },
+  3: { title: "Frenos", desc: "Realizar una comprobación del funcionamiento." },
+  4: { title: "Ruido", desc: "Escuche el ruido procedente del vehículo." },
+  5: { title: "Sist. Combustible (Gas)", desc: "Compruebe que no haya fugas de gas antes de trabajar." },
+  6: { title: "Sist. Combustible (Fugas)", desc: "Compruebe fugas de combustible antes de entrar al taller." },
+  7: { title: "Start/Stop Auto", desc: "Asegúrese que la función esté desactivada." },
+  8: { title: "Híbridos (Inicio)", desc: "Realizar proc. de seguridad para híbridos antes de comenzar." },
+
+  // PÁGINA 2: Cabina y Exterior
+  9: { title: "Frenos de disco", desc: "Compruebe el grosor de los forros de freno." },
+  10: { title: "Parabrisas/Limpias", desc: "Comprobar parabrisas, limpias y función de lavado." },
+  11: { title: "Retrovisores", desc: "Compruebe daños, ajuste y calefacción." },
+  12: { title: "Interior Cabina", desc: "Compruebe el estado del interior de la cabina." },
+  13: { title: "Iluminación ext.", desc: "Compruebe daños y funcionamiento." },
+  14: { title: "Ruedas", desc: "Comprobar llantas, neumáticos y patrones de desgaste." },
+  15: { title: "Carrocería", desc: "Comprobar si hay daños." },
+  16: { title: "Cabina (Ext)", desc: "Compruebe si hay daños externos." },
+  17: { title: "Motor", desc: "Comprobar nivel de aceite y si hay fugas." },
+
+  // PÁGINA 3: Basculamiento
+  18: { title: "Sist. Basculamiento", desc: "Prueba de func. y fugas en bomba/cilindro." },
+  19: { title: "Fugas Fluidos", desc: "Aceite, refrigerante, combustible, aire o gases." },
+  20: { title: "Sist. Refrigeración", desc: "Correas, tensor y poleas locas." },
+  21: { title: "Techo Cabina", desc: "Daños en techo y equipo de techo." },
+  22: { title: "Insonorización", desc: "Estado de pantallas insonorizantes. Componentes faltantes." },
+  23: { title: "Frenos tambor", desc: "Compruebe el grosor de los forros." },
+  24: { title: "Tubos de freno", desc: "Compruebe los latiguillos de freno." },
+
+  // PÁGINA 4: Mecánica y Bajada
+  25: { title: "Calderines aire", desc: "Vaciar agua. Comprobar corrosión o daños." },
+  26: { title: "Sistema escape", desc: "Compruebe daños y holgura." },
+  27: { title: "Suspensión", desc: "Compruebe daños y fugas." },
+  28: { title: "Diferencial Del.", desc: "Comprobar si hay fugas." },
+  29: { title: "Caja de cambios", desc: "Comprobar si hay fugas." },
+  30: { title: "Caja de reenvío", desc: "Comprobar si hay fugas." },
+  31: { title: "Ralentizador", desc: "Comprobar si hay fugas." },
+  32: { title: "Árboles transm.", desc: "Compruebe daños y holgura." },
+  33: { title: "Diferencial Tras.", desc: "Comprobar si hay fugas." },
+  34: { title: "Bogle doble eje", desc: "Comprobar si hay daños." },
+  35: { title: "Bastidor chasis", desc: "Compruebe daños y holgura." },
+  36: { title: "Cables/Conductos", desc: "Compruebe daños y holgura." },
+  37: { title: "Híbridos (Final)", desc: "Proc. de seguridad antes de trabajar (Bajada de cabina)." },
+};
+
+// --- Interfaces ---
 interface FormData {
-  [key: string]: {
-    [key: number]: boolean;
-  };
+  [key: string]: { [key: number]: boolean };
 }
-
 interface CheckItemProps {
   number: number;
   title: string;
@@ -20,21 +80,15 @@ interface CheckItemProps {
 const VehicleCheckScreen = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [formData, setFormData] = useState<FormData>({});
-  const navigation = useNavigation();
+  const [isGenerating, setIsGenerating] = useState(false);
+  
+  const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const vehicleData = route.params?.vehicleData || {};
 
-  const handleNext = () => {
-    if (currentPage < 4) {
-      setCurrentPage(currentPage + 1);
-    } else {
-      navigation.goBack();
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+  // Helpers optimizados usando el objeto maestro
+  const getTitle = (num: number) => CHECKLIST_DATA[num]?.title || `Ítem ${num}`;
+  const getDesc = (num: number) => CHECKLIST_DATA[num]?.desc || "Verificar estado.";
 
   const handleCheckboxChange = (section: string, item: number) => {
     setFormData(prev => ({
@@ -46,432 +100,248 @@ const VehicleCheckScreen = () => {
     }));
   };
 
-  const renderPage1 = () => (
+  // --- GENERACIÓN PDF ---
+  const generateAndSharePDF = async () => {
+    setIsGenerating(true);
+    try {
+      let itemsListHtml = '';
+
+      const addRowIfChecked = (section: string, id: number) => {
+        if (formData[section]?.[id]) {
+          itemsListHtml += `
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">${id}</td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;">
+                <strong>${getTitle(id)}</strong><br>
+                <small style="color: #666;">${getDesc(id)}</small>
+              </td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd; color: #D32F2F; text-align: center; font-weight: bold;">
+                ✘ DAÑO
+              </td>
+            </tr>
+          `;
+        }
+      };
+
+      // Iteramos rangos según páginas
+      for (let i = 1; i <= 8; i++) addRowIfChecked('conduccion', i);
+      for (let i = 9; i <= 17; i++) addRowIfChecked('cabina', i);
+      for (let i = 18; i <= 24; i++) addRowIfChecked('basculada', i);
+      for (let i = 25; i <= 37; i++) addRowIfChecked('mecanicos', i);
+
+      if (itemsListHtml === '') {
+        itemsListHtml = `<tr><td colspan="3" style="padding: 20px; text-align: center; color: #4CAF50;">✓ Vehículo ingresa sin daños reportados en el checklist.</td></tr>`;
+      }
+
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+          <style>
+            body { font-family: 'Helvetica', sans-serif; padding: 20px; color: #333; }
+            .header { text-align: center; margin-bottom: 20px; border-bottom: 3px solid #D32F2F; padding-bottom: 15px; }
+            .brand { font-size: 28px; font-weight: 900; color: #000; letter-spacing: -1px; }
+            .subtitle { font-size: 14px; color: #666; margin-top: 5px; text-transform: uppercase; letter-spacing: 2px;}
+            
+            .info-box { background: #f4f4f4; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; }
+            .info-item { width: 50%; margin-bottom: 10px; box-sizing: border-box; padding-right: 10px; }
+            .label { font-size: 10px; color: #888; text-transform: uppercase; font-weight: bold; }
+            .val { font-size: 14px; font-weight: bold; color: #000; }
+
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+            th { text-align: left; background: #333; color: white; padding: 10px; }
+            
+            .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #eee; padding-top: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="brand">CHECKLIST DE INGRESO</div>
+            <div class="subtitle">${vehicleData.concesionario || 'TALLER MECÁNICO'}</div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-item"><div class="label">Cliente</div><div class="val">${vehicleData.cliente}</div></div>
+            <div class="info-item"><div class="label">Matrícula</div><div class="val">${vehicleData.matricula}</div></div>
+            <div class="info-item"><div class="label">Fecha</div><div class="val">${vehicleData.fecha}</div></div>
+            <div class="info-item"><div class="label">Orden Nº</div><div class="val">${vehicleData.orden || '-'}</div></div>
+            <div class="info-item"><div class="label">Modelo</div><div class="val">${vehicleData.motor || '-'}</div></div>
+            <div class="info-item"><div class="label">Técnico</div><div class="val">${vehicleData.tecnico || '-'}</div></div>
+            <div class="info-item" style="width: 100%; margin-top: 5px;"><div class="label">Nota Gral</div><div class="val">${vehicleData.nota ? 'CON OBSERVACIONES' : 'SIN OBSERVACIONES'}</div></div>
+          </div>
+
+          <h3>Detalle de Inspección</h3>
+          <table>
+            <thead>
+              <tr><th width="10%">ID</th><th width="70%">Descripción</th><th width="20%">Estado</th></tr>
+            </thead>
+            <tbody>
+              ${itemsListHtml}
+            </tbody>
+          </table>
+
+          <div class="footer">
+            Documento generado digitalmente • Mecánica Integral App
+          </div>
+        </body>
+        </html>
+      `;
+
+      const { uri } = await Print.printToFileAsync({ html: htmlContent });
+      await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+
+    } catch (error) {
+      Alert.alert("Error", "No se pudo generar el PDF");
+      console.error(error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleNext = () => currentPage < 4 && setCurrentPage(p => p + 1);
+  const handlePrevious = () => currentPage > 1 && setCurrentPage(p => p - 1);
+
+  // --- RENDERIZADO DE PÁGINAS ---
+  const renderPage = (start: number, end: number, sectionKey: string, title: string) => (
     <View style={styles.pageContainer}>
-      <Text style={styles.sectionTitle}>Prueba de conducción corta</Text>
-      
-      <CheckItem 
-        number={1} 
-        title="Volante" 
-        description="Compruebe la posición de marcha en línea recta. Compruebe el ajuste del volante."
-        checked={formData?.conduccion?.[1]}
-        onChange={() => handleCheckboxChange('conduccion', 1)}
-      />
-      
-      <CheckItem 
-        number={2} 
-        title="Embrague y caja de cambios" 
-        description="Realizar una comprobación del funcionamiento."
-        checked={formData?.conduccion?.[2]}
-        onChange={() => handleCheckboxChange('conduccion', 2)}
-      />
-      
-      <CheckItem 
-        number={3} 
-        title="Frenos" 
-        description="Realizar una comprobación del funcionamiento."
-        checked={formData?.conduccion?.[3]}
-        onChange={() => handleCheckboxChange('conduccion', 3)}
-      />
-      
-      <CheckItem 
-        number={4} 
-        title="Ruido" 
-        description="Escuche el ruido procedente del vehículo."
-        checked={formData?.conduccion?.[4]}
-        onChange={() => handleCheckboxChange('conduccion', 4)}
-      />
-
-      <CheckItem 
-        number={5} 
-        title="Sistema de combustible" 
-        description="Compruebe que no haya fugas de gas antes de trabajar en el taller."
-        checked={formData?.conduccion?.[5]}
-        onChange={() => handleCheckboxChange('conduccion', 5)}
-      />
-
-      <CheckItem 
-        number={6} 
-        title="Sistema de combustible" 
-        description="Compruebe que el vehiculo no tiene fugas de combustible antes de entrar en el taller."
-        checked={formData?.conduccion?.[6]}
-        onChange={() => handleCheckboxChange('conduccion', 6)}
-      />
-
-      <CheckItem 
-        number={7} 
-        title="Función de arranque y parada automático a ralentí" 
-        description="Asegúrese que la llave de encendido/botón de encendido esté en el modo de conducción y que la función esté desactivada a través del interruptor para detener y arrancar el ralentí."
-        checked={formData?.conduccion?.[7]}
-        onChange={() => handleCheckboxChange('conduccion', 7)}
-      />
-
-      <CheckItem 
-        number={8} 
-        title="Vehículos híbridos" 
-        description="Realizar los Procedimientos para operaciones de taller en vehículos híbridos antes de comenzar el trabajo. En las instrucciones se puede encontrar información sobre estos procedimientos."
-        checked={formData?.conduccion?.[8]}
-        onChange={() => handleCheckboxChange('conduccion', 8)}
-      />
-    </View>
-  );
-
-  const renderPage2 = () => (
-    <View style={styles.pageContainer}>
-      <Text style={styles.sectionTitle}>En la cabina</Text>
-      
-      {[9, 10, 11, 12].map(num => (
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {Array.from({ length: end - start + 1 }, (_, i) => start + i).map(num => (
         <CheckItem 
-          key={num}
+          key={num} 
           number={num} 
-          title={getCabinaTitle(num)} 
-          description={getCabinaDescription(num)}
-          checked={formData?.cabina?.[num]}
-          onChange={() => handleCheckboxChange('cabina', num)}
+          title={getTitle(num)} 
+          description={getDesc(num)}
+          checked={formData[sectionKey]?.[num]} 
+          onChange={() => handleCheckboxChange(sectionKey, num)} 
         />
       ))}
-
-      <Text style={styles.sectionTitle}>Acciones fuera del vehículo</Text>
-      
-      {[13, 14, 15, 16, 17].map(num => (
-        <CheckItem 
-          key={num}
-          number={num} 
-          title={getExteriorTitle(num)} 
-          description={getExteriorDescription(num)}
-          checked={formData?.exterior?.[num]}
-          onChange={() => handleCheckboxChange('exterior', num)}
-        />
-      ))}
-    </View>
-  );
-
-  const renderPage3 = () => (
-    <View style={styles.pageContainer}>
-      <Text style={styles.sectionTitle}>Basculamiento de la cabina</Text>
-      
-      {[18, 19, 20, 21, 22, 23, 24].map(num => (
-        <CheckItem 
-          key={num}
-          number={num} 
-          title={getBasculadaTitle(num)} 
-          description={getBasculadaDescription(num)}
-          checked={formData?.basculada?.[num]}
-          onChange={() => handleCheckboxChange('basculada', num)}
-        />
-      ))}
-    </View>
-  );
-
-  const renderPage4 = () => (
-    <View style={styles.pageContainer}>
-      <Text style={styles.sectionTitle}>Basculamiento de la cabina</Text>
-      
-      {Array.from({length: 12}, (_, i) => i + 25).map(num => (
-        <CheckItem 
-          key={num}
-          number={num} 
-          title={getMecanicosTitle(num)} 
-          description={getMecanicosDescription(num)}
-          checked={formData?.mecanicos?.[num]}
-          onChange={() => handleCheckboxChange('mecanicos', num)}
-        />
-      ))}
-
-      <Text style={[styles.sectionTitle, {marginTop: 20}]}>Bajada de la cabina</Text>
-      <CheckItem 
-        number={37} 
-        title="Vehículos híbridos" 
-        description="Realizar los Procedimientos para operaciones de taller en vehículos híbridos antes de comenzar el trabajo."
-        checked={formData?.hibridos?.[37]}
-        onChange={() => handleCheckboxChange('hibridos', 37)}
-      />
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <LinearGradient colors={['#000000', '#1a1a1a']} style={styles.container}>
+    <View style={styles.mainContainer}>
+      <LinearGradient colors={['#000000', '#121212']} style={styles.gradient}>
+        
+        {/* HEADER CON SAFE AREA CORREGIDA */}
+        <View style={styles.headerWrapper}>
+            <View style={styles.header}>
+                <View>
+                    <Text style={styles.headerTitle}>Inspección {currentPage}/4</Text>
+                    <Text style={styles.headerSubtitle}>{vehicleData.matricula || 'Sin Patente'}</Text>
+                </View>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeBtn}>
+                    <MaterialIcons name="close" size={24} color="#fff" />
+                </TouchableOpacity>
+            </View>
+        </View>
+
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <Text style={styles.title}>Comprobación de estado del vehículo</Text>
-          
-          <View style={styles.headerInfo}>
-            <Text style={styles.infoText}>SCANIA</Text>
-            {/* <Text style={styles.infoText}>N.º de matrícula: {formData.plate || '---'}</Text> */}
-          </View>
-
-          {currentPage === 1 && renderPage1()}
-          {currentPage === 2 && renderPage2()}
-          {currentPage === 3 && renderPage3()}
-          {currentPage === 4 && renderPage4()}
-
-          <View style={styles.navigationButtons}>
-            {currentPage > 1 && (
-              <TouchableOpacity 
-                style={[styles.navButton, styles.prevButton]}
-                onPress={handlePrevious}
-              >
-                <Text style={styles.navButtonText}>Anterior</Text>
-              </TouchableOpacity>
-            )}
-            
-            <TouchableOpacity 
-              style={[styles.navButton, styles.nextButton]}
-              onPress={handleNext}
-            >
-              <Text style={styles.navButtonText}>
-                {currentPage === 4 ? 'Finalizar' : 'Siguiente'}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          {currentPage === 1 && renderPage(1, 8, 'conduccion', '1. Prueba de Conducción')}
+          {currentPage === 2 && renderPage(9, 17, 'cabina', '2. Cabina y Exterior')}
+          {currentPage === 3 && renderPage(18, 24, 'basculada', '3. Basculamiento')}
+          {currentPage === 4 && renderPage(25, 37, 'mecanicos', '4. Mecánica y Chasis')}
         </ScrollView>
+
+        {/* FOOTER BAR ELEVADO */}
+        <View style={styles.footerBar}>
+          <TouchableOpacity 
+            style={[styles.navButton, styles.secondaryBtn, currentPage === 1 && styles.disabledBtn]}
+            onPress={handlePrevious}
+            disabled={currentPage === 1}
+          >
+            <MaterialIcons name="chevron-left" size={32} color={currentPage === 1 ? "#333" : "#fff"} />
+          </TouchableOpacity>
+
+          <View style={styles.pageIndicator}>
+            {[1, 2, 3, 4].map(p => (
+                <View key={p} style={[styles.dot, currentPage === p && styles.activeDot]} />
+            ))}
+          </View>
+
+          {currentPage < 4 ? (
+            <TouchableOpacity style={[styles.navButton, styles.primaryBtn]} onPress={handleNext}>
+                <MaterialIcons name="chevron-right" size={32} color="#fff" />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity 
+                style={[styles.navButton, styles.successBtn]} 
+                onPress={generateAndSharePDF}
+                disabled={isGenerating}
+            >
+                {isGenerating ? <ActivityIndicator color="#fff" /> : <MaterialIcons name="print" size={28} color="#fff" />}
+            </TouchableOpacity>
+          )}
+        </View>
+
       </LinearGradient>
-    </SafeAreaView>
+    </View>
   );
 };
 
+// --- COMPONENTE ITEM ---
 const CheckItem: React.FC<CheckItemProps> = ({ number, title, description, checked = false, onChange }) => (
-  <View style={styles.itemContainer}>
-    <View style={styles.checkboxContainer}>
-      <Text style={styles.itemNumber}>{number}.</Text>
-      <TouchableOpacity 
-        style={[styles.checkbox, checked && styles.checkedBox]}
-        onPress={onChange}
-      >
-        {checked && <Text style={styles.checkmark}>✓</Text>}
-      </TouchableOpacity>
+  <TouchableOpacity style={[styles.itemContainer, checked && styles.itemActive]} onPress={onChange} activeOpacity={0.7}>
+    <View style={styles.checkCol}>
+        <View style={[styles.checkbox, checked && styles.checkedBox]}>
+            {checked && <MaterialIcons name="check" size={18} color="#fff" />}
+        </View>
     </View>
-    
-    <View style={styles.itemContent}>
-      <Text style={styles.itemTitle}>{title}</Text>
-      <Text style={styles.itemDescription}>{description}</Text>
+    <View style={styles.textCol}>
+        <Text style={[styles.itemNumber, checked && {color: '#FF4C4C'}]}>#{number} - {title}</Text>
+        <Text style={styles.itemDesc}>{description}</Text>
     </View>
-  </View>
+  </TouchableOpacity>
 );
 
-// Funciones helper para obtener títulos y descripciones
-const getCabinaTitle = (num: number): string => {
-  const titles: {[key: number]: string} = {
-    9: 'Frenos de disco',
-    10: 'Parabrisas, limpiaparabrisas',
-    11: 'Retrovisores',
-    12: 'Cabina'
-  };
-  return titles[num] || '';
-};
-
-const getCabinaDescription = (num: number): string => {
-  const descriptions: {[key: number]: string} = {
-    9: 'Compruebe el grosor de los forros de freno.',
-    10: 'Comprobar el parabrisas, los limpiaparabrisas y la función de lavado.',
-    11: 'Compruebe si hay daños. Compruebe su ajuste y funcionamiento de la calefacción.',
-    12: 'Compruebe el estado del interior de la cabina.'
-  };
-  return descriptions[num] || '';
-};
-
-const getExteriorTitle = (num: number): string => {
-  const titles: {[key: number]: string} = {
-    13: 'Iluminación exterior',
-    14: 'Ruedas',
-    15: 'Carrocería',
-    16: 'Cabina',
-    17: 'Motor'
-  };
-  return titles[num] || '';
-};
-
-const getExteriorDescription = (num: number): string => {
-  const descriptions: {[key: number]: string} = {
-    13: 'Compruebe si hay daños. Realice una comprobación del funcionamiento.',
-    14: 'Comprobar si la llanta y el neumático están dañados y los patrones de desgaste.',
-    15: 'Comprobar si hay daños.',
-    16: 'Compruebe si hay daños externos.',
-    17: 'Comprobar el nivel de aceite. Comprobar si hay fugas.'
-  };
-  return descriptions[num] || '';
-};
-
-const getBasculadaTitle = (num: number): string => {
-  const titles: {[key: number]: string} = {
-    18: 'Sistema de basculamiento de la cabina',
-    19: 'Fugas',
-    20: 'Sistema de refrigeración',
-    21: 'Techo de la cabina',
-    22: 'Pantallas insonorizantes',
-    23: 'Frenos de tambor',
-    24: 'Tubos flexibles de los frenos'
-  };
-  return titles[num] || '';
-};
-
-const getBasculadaDescription = (num: number): string => {
-  const descriptions: {[key: number]: string} = {
-    18: 'Efectúe una prueba de funcionamiento y compruebe si hay fugas procedentes de la bomba y el cilindro hidráulico.',
-    19: 'Compruebe si hay fugas de aceite, refrigerante, combustible, aire o gases de escape.',
-    20: 'Comprobar las correas de transmisión, el tensor de correa y las poleas locas.',
-    21: 'Compruebe si hay daños en el techo y en el equipo del techo.',
-    22: 'Compruebe el estado de las pantallas insonorizantes. Observe si falta algún componente.',
-    23: 'Compruebe el grosor de los forros de freno.',
-    24: 'Compruebe los latiguillos de freno.'
-  };
-  return descriptions[num] || '';
-};
-
-const getMecanicosTitle = (num: number): string => {
-  const titles: {[key: number]: string} = {
-    25: 'Calderines de aire comprimido',
-    26: 'Sistema de escape',
-    27: 'Suspensión',
-    28: 'Grupo diferencial, delantero',
-    29: 'Caja de cambios',
-    30: 'Caja de reenvío',
-    31: 'Ralentizador',
-    32: 'Árboles de transmisión',
-    33: 'Grupos diferenciales traseros',
-    34: 'Bogle de doble eje motriz',
-    35: 'Bastidor del chasis y soportes',
-    36: 'Cables eléctricos y conductos'
-  };
-  return titles[num] || '';
-};
-
-const getMecanicosDescription = (num: number): string => {
-  const descriptions: {[key: number]: string} = {
-    25: 'Vaciar el agua de condensación. Comprobar que los calderines no presenten corrosión ni daños externos.',
-    26: 'Compruebe si hay daños y holgura.',
-    27: 'Compruebe si hay daños. Compruebe si hay fugas.',
-    28: 'Comprobar si hay fugas.',
-    29: 'Comprobar si hay fugas.',
-    30: 'Comprobar si hay fugas.',
-    31: 'Comprobar si hay fugas.',
-    32: 'Compruebe si hay daños y holgura.',
-    33: 'Comprobar si hay fugas.',
-    34: 'Comprobar si hay daños.',
-    35: 'Compruebe si hay daños y holgura.',
-    36: 'Compruebe si hay daños y holgura.'
-  };
-  return descriptions[num] || '';
-};
-
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#000',
+  mainContainer: { flex: 1, backgroundColor: '#000' },
+  gradient: { flex: 1 },
+  
+  // HEADER
+  headerWrapper: {
+    backgroundColor: '#1E1E1E',
+    borderBottomWidth: 1, 
+    borderBottomColor: '#333',
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 10 : 0, 
   },
-  container: {
-    flex: 1,
-    paddingHorizontal: 16,
+  header: { padding: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  headerTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+  headerSubtitle: { color: '#FF4C4C', fontSize: 14 },
+  closeBtn: { padding: 5 },
+
+  // SCROLL
+  scrollContainer: { padding: 16, paddingBottom: 120 }, 
+  pageContainer: { marginBottom: 20 },
+  sectionTitle: { color: '#fff', fontSize: 15, fontWeight: 'bold', textTransform: 'uppercase', marginBottom: 15, borderLeftWidth: 4, borderLeftColor: '#FF4C4C', paddingLeft: 12, marginTop: 10 },
+  
+  // ITEMS
+  itemContainer: { flexDirection: 'row', backgroundColor: '#141414', padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: '#2A2A2A' },
+  itemActive: { borderColor: '#FF4C4C', backgroundColor: '#1E1010' },
+  checkCol: { marginRight: 15, justifyContent: 'center' },
+  textCol: { flex: 1 },
+  checkbox: { width: 28, height: 28, borderRadius: 8, borderWidth: 2, borderColor: '#555', alignItems: 'center', justifyContent: 'center' },
+  checkedBox: { backgroundColor: '#FF4C4C', borderColor: '#FF4C4C' },
+  itemNumber: { color: '#ddd', fontSize: 16, fontWeight: '700', marginBottom: 4 },
+  itemDesc: { color: '#888', fontSize: 13, lineHeight: 18 },
+
+  // FOOTER
+  footerBar: { 
+    position: 'absolute', bottom: 0, left: 0, right: 0, 
+    height: Platform.OS === 'ios' ? 100 : 120, 
+    paddingBottom: Platform.OS === 'ios' ? 20 : 40,
+    backgroundColor: '#1E1E1E', 
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 30, 
+    borderTopWidth: 1, borderTopColor: '#333', elevation: 20
   },
-  scrollContainer: {
-    paddingVertical: 20,
-  },
-  title: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  headerInfo: {
-    backgroundColor: '#1a1a1a',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  infoText: {
-    color: '#fff',
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  pageContainer: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    color: '#FF4C4C',
-    fontSize: 18,
-    fontWeight: '600',
-    borderBottomWidth: 2,
-    borderBottomColor: '#FF4C4C',
-    paddingBottom: 8,
-    marginBottom: 16,
-    marginTop: 20,
-  },
-  itemContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-    backgroundColor: '#1a1a1a',
-    padding: 12,
-    borderRadius: 8,
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  itemNumber: {
-    color: '#FF4C4C',
-    fontWeight: 'bold',
-    marginRight: 8,
-    width: 24,
-    textAlign: 'right',
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#FF4C4C',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-  },
-  checkedBox: {
-    backgroundColor: '#FF4C4C',
-  },
-  checkmark: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  itemContent: {
-    flex: 1,
-  },
-  itemTitle: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  itemDescription: {
-    color: '#ccc',
-    fontSize: 14,
-  },
-  navigationButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  navButton: {
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    minWidth: 120,
-    alignItems: 'center',
-  },
-  prevButton: {
-    backgroundColor: '#333',
-  },
-  nextButton: {
-    backgroundColor: '#FF4C4C',
-    marginLeft: 'auto',
-  },
-  navButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  navButton: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
+  primaryBtn: { backgroundColor: '#333', borderWidth: 1, borderColor: '#555' },
+  secondaryBtn: { backgroundColor: 'transparent' },
+  successBtn: { backgroundColor: '#FF4C4C', width: 64, height: 64, borderRadius: 32, elevation: 8, shadowColor: '#FF4C4C', shadowOpacity: 0.4 },
+  disabledBtn: { opacity: 0.2 },
+  pageIndicator: { flexDirection: 'row', gap: 10 },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#333' },
+  activeDot: { backgroundColor: '#FF4C4C', width: 12 }
 });
 
 export default VehicleCheckScreen;

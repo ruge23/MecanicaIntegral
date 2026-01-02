@@ -1,6 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import {
@@ -8,7 +7,6 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
@@ -17,264 +15,167 @@ import {
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { login, loginFailure } from '../redux/slices/loginSlice';
-import { RootStackParamList } from '../types';
-// import { testFirebaseConnection } from '../testFirebase'; 
-
-type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'login'>;
 
 const LoginScreen = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [usernameError, setUsernameError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
   const dispatch = useDispatch();
-  const navigation = useNavigation<LoginScreenNavigationProp>();
+  const navigation = useNavigation<any>();
 
   const handleLogin = () => {
-    setUsernameError('');
-    setPasswordError('');
-    let isValid = true;
-
-    if (!username.trim()) {
-      setUsernameError('Por favor ingresa tu nombre de usuario');
-      isValid = false;
+    setError('');
+    if (!username.trim() || !password) {
+      setError('Por favor completa todos los campos');
+      return;
     }
-    if (!password) {
-      setPasswordError('Por favor ingresa tu contraseña');
-      isValid = false;
-    }
-    if (!isValid) return;
 
     setIsLoading(true);
-    
     setTimeout(() => {
-      const normalizedUsername = username.toLowerCase().trim();
-      console.log('Intento de login con:', { normalizedUsername, password }); // Debug
-
-      if ((normalizedUsername === 'santiago' && password === '159753') || (normalizedUsername === 'ana' && password === '654987')) {
-        dispatch(login({ username: normalizedUsername }));
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'home' }],
-        });
+      const user = username.toLowerCase().trim();
+      if ((user === 'santiago' && password === '159753') || (user === 'ana' && password === '654987')) {
+        dispatch(login({ username: user }));
+        navigation.reset({ index: 0, routes: [{ name: 'home' }] });
       } else {
-        dispatch(loginFailure({error: 'Credenciales incorrectas'}));
-        setUsernameError('Credenciales incorrectas');
-        setPasswordError('Credenciales incorrectas');
+        dispatch(loginFailure({ error: 'Credenciales inválidas' }));
+        setError('Usuario o contraseña incorrectos');
       }
       setIsLoading(false);
     }, 1500);
   };
 
-  // useEffect(() => {
-    // testFirebaseConnection();
-  // }, []);
-
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.mainContainer}>
       <LinearGradient
-        colors={['#000000', '#1a1a1a']}
-        style={styles.container}
+        colors={['#000000', '#1a0505']}
+        style={styles.gradient}
       >
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardAvoidingView}
+          style={styles.keyboardView}
         >
-          <View style={styles.content}>
-            {/* Logo centrado en la parte superior */}
-            <View style={styles.logoContainer}>
-              <Image
-                source={require('../assets/images/logo-mecanica-integral.jpeg')}
-                style={styles.logo}
-                resizeMode="contain"
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('../assets/images/logo-mecanica-integral.jpeg')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.title}>Bienvenido</Text>
+            <Text style={styles.subtitle}>Gestión Integral de Taller</Text>
+
+            <View style={styles.inputContainer}>
+              <MaterialIcons name="person-outline" size={20} color="#666" style={styles.icon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Usuario"
+                placeholderTextColor="#666"
+                value={username}
+                onChangeText={setUsername}
+                autoCapitalize="none"
               />
             </View>
 
-            {/* Contenedor del formulario */}
-            <View style={styles.formContainer}>
-              <Text style={styles.title}>Mecánica Integral</Text>
-              <Text style={styles.subtitle}>Ingresa tus credenciales</Text>
-
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={[
-                    styles.input,
-                    usernameError ? styles.inputError : null
-                  ]}
-                  placeholder="Usuario"
-                  placeholderTextColor="#888"
-                  value={username}
-                  onChangeText={setUsername}
-                  autoCapitalize="none"
+            <View style={styles.inputContainer}>
+              <MaterialIcons name="lock-outline" size={20} color="#666" style={styles.icon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Contraseña"
+                placeholderTextColor="#666"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <MaterialIcons
+                  name={showPassword ? 'visibility-off' : 'visibility'}
+                  size={20}
+                  color="#666"
                 />
-                {usernameError && (
-                  <Text style={styles.errorText}>{usernameError}</Text>
-                )}
-              </View>
-
-              <View style={styles.passwordContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Contraseña"
-                  placeholderTextColor="#888"
-                  secureTextEntry={!showPassword}
-                  value={password}
-                  onChangeText={(text) => {
-                    setPassword(text);
-                    setPasswordError('');
-                  }}
-                />
-                <TouchableOpacity
-                  style={styles.toggleButton}
-                  onPress={() => setShowPassword(!showPassword)}
-                >
-                  <MaterialIcons 
-                    name={showPassword ? 'visibility-off' : 'visibility'} 
-                    size={24} 
-                    color="#888" 
-                  />
-                </TouchableOpacity>
-              </View>
-              {passwordError && (
-                <Text style={styles.errorText}>{passwordError}</Text>
-              )}
-              <TouchableOpacity 
-                style={[
-                  styles.button,
-                  isLoading ? styles.buttonDisabled : null
-                ]}
-                onPress={handleLogin}
-                disabled={isLoading}
-                activeOpacity={0.8}
-              >
-                {isLoading ? (
-                  <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="small" color="#fff" />
-                    <Text style={styles.loadingText}>Cargando...</Text>
-                  </View>
-                ) : (
-                  <Text style={styles.buttonText}>Ingresar</Text>
-                )}
               </TouchableOpacity>
             </View>
+
+            {error ? (
+              <View style={styles.errorContainer}>
+                <MaterialIcons name="error-outline" size={16} color="#FF4C4C" />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            ) : null}
+
+            <TouchableOpacity
+              onPress={handleLogin}
+              disabled={isLoading}
+              style={[styles.button, isLoading && styles.buttonDisabled]}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text style={styles.buttonText}>INGRESAR</Text>
+              )}
+            </TouchableOpacity>
           </View>
+
+          <Text style={styles.footerText}>v1.0.2 - Dev by Santiago</Text>
         </KeyboardAvoidingView>
       </LinearGradient>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  container: {
-    flex: 1,
-  },
-  keyboardAvoidingView: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
-  logoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 40,
-    paddingBottom: 20,
-  },
-  logo: {
-    width: 250,
-    height: 150,
-    marginBottom: 20,
-  },
-  formContainer: {
-    backgroundColor: '#111',
-    borderRadius: 16,
-    padding: 25,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 5,
-    marginBottom: 30,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#fff',
-    textAlign: 'center',
-    marginBottom: 5,
-  },
-  subtitle: {
-    color: '#aaa',
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 30,
-  },
-  inputContainer: {
-    marginBottom: 15,
-  },
-  passwordContainer: {
-    position: 'relative',
-    marginBottom: 5,
-  },
-  input: {
-    backgroundColor: '#222',
-    color: '#fff',
+  mainContainer: { flex: 1, backgroundColor: '#000' },
+  gradient: { flex: 1 },
+  keyboardView: { flex: 1, justifyContent: 'center', paddingHorizontal: 24 },
+  logoContainer: { alignItems: 'center', marginBottom: 40 },
+  logo: { width: 250, height: 160 },
+  card: {
+    backgroundColor: 'rgba(30, 30, 30, 0.95)',
+    padding: 30,
+    borderRadius: 24,
     borderWidth: 1,
     borderColor: '#333',
-    borderRadius: 8,
-    padding: 15,
-    fontSize: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 10,
   },
-  inputError: {
-    borderColor: '#ff4c4c',
-  },
-  errorText: {
-    color: '#ff4c4c',
-    fontSize: 12,
-    marginTop: 5,
-    paddingLeft: 5,
-  },
-  toggleButton: {
-    position: 'absolute',
-    right: 12,
-    top: '50%',
-    transform: [{ translateY: -12 }],
-    padding: 8,
-  },
-  button: {
-    backgroundColor: '#FF4C4C',
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  loadingContainer: {
+  title: { fontSize: 28, fontWeight: 'bold', color: '#fff', textAlign: 'center', marginBottom: 8 },
+  subtitle: { color: '#888', textAlign: 'center', marginBottom: 30 },
+  inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
+    backgroundColor: '#121212',
+    borderRadius: 12,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#333',
   },
-  loadingText: {
-    color: '#fff',
-    fontSize: 16,
-    marginLeft: 8,
+  icon: { marginRight: 10 },
+  input: { flex: 1, color: '#fff', fontSize: 16 },
+  errorContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 16, backgroundColor: 'rgba(255, 76, 76, 0.1)', padding: 10, borderRadius: 8 },
+  errorText: { color: '#FF4C4C', fontSize: 14, marginLeft: 8, fontWeight: '600' },
+  button: {
+    backgroundColor: '#FF4C4C',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 10,
+    shadowColor: '#FF4C4C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
+  buttonDisabled: { opacity: 0.7 },
+  buttonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+  footerText: { color: '#444', textAlign: 'center', marginTop: 30, fontSize: 12 },
 });
 
 export default LoginScreen;
